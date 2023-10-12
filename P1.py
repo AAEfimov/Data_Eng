@@ -21,7 +21,7 @@ for l in lines:
         d.setdefault(w,0)
         d[w] += 1
 
-d = dict(sorted(d.items(), key=lambda item: item[1]))
+d = dict(sorted(d.items(),reverse = True, key=lambda item: item[1]))
 
 with open(filename+"out", "w") as f:
     for w in d:

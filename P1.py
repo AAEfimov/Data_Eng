@@ -13,7 +13,7 @@ for l in lines:
          .replace("?", " ")
          .replace(",", " ")
          .replace(".", " ")
-         .strip("!"))
+         .strip())
 
     words = r.split()
 

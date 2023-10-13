@@ -8,6 +8,7 @@ age_filter = 25 + (40 % 10)
 
 d = {}
 csv_del = ","
+last_name_first = True
 
 with open(filename, mode = "r", encoding="utf-8") as f:
     l = csv.reader(f, delimiter=csv_del)
@@ -31,4 +32,10 @@ except:
 with open(filename + "out", mode = "w", encoding="utf-8") as f:
     d_w = csv.writer(f, delimiter=csv_del)
     for item in ml.items():
-        d_w.writerow([item[0]] + item[1]) 
+
+        if last_name_first == True:
+            name = " ".join(item[1][1::-1])
+        else:
+            name = " ".join(item[1][0:2])
+
+        d_w.writerow([item[0]] + [name, *item[1][2:]])

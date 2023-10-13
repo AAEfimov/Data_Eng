@@ -1,7 +1,6 @@
 
 
-filename = "text_2_var_40"
-
+filename = "tests/text_2_var_40"
 det = ","
 
 with open(filename) as f:
@@ -9,9 +8,11 @@ with open(filename) as f:
 
 with open(filename + "out", "w") as f:
     for l in lines:
-        rsum = 0
-        for n in l.strip().split(det):
-            rsum += int(n)
-            # SOME OPERATIONS
-        f.write(f"{str(rsum)}\n")
-        
+        f.write(f"{sum(map(int, l.strip().split(det)))}\n")
+       
+
+# OLD
+#        rsum = 0
+#        for n in l.strip().split(det):
+#            rsum += int(n)
+#        f.write(f"{str(rsum)}\n")

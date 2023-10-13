@@ -20,12 +20,7 @@ with open(filename, mode = "r", encoding="utf-8") as f:
 m /= len(d)
 
 # all filters here
-ml = dict(sorted([[int(k) , v] if (int(v[-1][:-1]) >= m) and (int(v[2]) > age_filter) else [-1 , [-1]] for k, v in d.items()]))
-
-try:
-    ml.pop(-1)
-except:
-    pass
+ml = dict(sorted([[int(k) , v] for k, v in d.items() if (int(v[-1][:-1]) >= m) and (int(v[2]) > age_filter)]))
 
 # try to use filter(lambda v: ...., d.items())
 

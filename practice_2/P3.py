@@ -3,12 +3,15 @@ import msgpack
 import os
 
 datafile = "tests/z3_products_40.json"
+out_json_datafile = datafile + "out_json"
+out_msgpack_datafile = datafile + "out_msgpack"
 
 with open(datafile) as f:
     data = json.load(f)
 
     prod = dict()
 
+    # becoase I try to use some new features
     for item in data:
         try:
             prod[item['name']].append(item['price'])
@@ -32,12 +35,9 @@ with open(datafile) as f:
             "avr" : sump / size
         })
 
-out_json_datafile = datafile + "out_json"
 
 with open(out_json_datafile, mode="w") as f_json:
     json.dump(res, f_json)
-
-out_msgpack_datafile = datafile + "out_msgpack"
 
 with open(out_msgpack_datafile, mode="wb") as f_msg:
     msgpack.dump(res, f_msg)

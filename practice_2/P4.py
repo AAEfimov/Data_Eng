@@ -21,17 +21,31 @@ def price_update(product, price_info):
     elif method == "percent-":
         product["price"] *= (1 - price_info["param"])
 
+    #return product
+    return 1
+
 
 pid = {}
 
 for v in data:
     pid[v['name']] = v
 
-for v in prods:
-    cpi = pid[v['name']]
-    price_update(v, cpi)
+# V1
+# [price_update(v, pid[v['name']]) for v in prods]
 
+# V2
+# t = map(lambda v: price_update(v, pid[v['name']]), prods)
+# print(set(t))
+
+# V3
+for v in prods:
+    price_update(v, pid[v['name']])
 
 with open(datafile_prod + "_out", "wb") as f:
     pickle.dump(prods, f)
 
+
+# DBG
+#with open(datafile_prod + "_out", mode="rb") as f:
+#    prods = pickle.load(f)
+#print(prods)

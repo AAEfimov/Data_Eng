@@ -6,3 +6,5 @@
 :white_check_mark: [Задание 3](P3.py)  
 :white_check_mark: [Задание 4](P4.py)  
 :white_check_mark: [Задание 5](P5.py)  
+## Результаты обработки датасета из задания 5
+![image](tests/p2_ex5_result.png)

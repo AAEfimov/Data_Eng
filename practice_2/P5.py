@@ -173,18 +173,24 @@ ml = [stat['MONTH'][str(v)] for v in range(1, 13)]
 dl = [stat['DOW'][str(v)] for v in range(1, 8)]
 hl = [stat['HOUR'][str(v)] for v in range(0, 24)]
 
-fig, axs = plt.subplots(1, 3)
+fig, axs = plt.subplots(2, 2)
 
-axs[0].plot(month_s, ml)
-axs[0].set_title('INCIDENT PER MONTH')
+axs[0, 0].plot(month_s, ml)
+axs[0, 0].set_title('Incident per month')
 
-axs[1].plot(days, dl)
-axs[1].set_title('INCIDENT PER DOW')
+axs[0, 1].plot(days, dl)
+axs[0, 1].set_title('Incident per dow')
 
 x = [h for h in range(0, 24)]
 
+axs[1, 0].plot(x, hl)
+axs[1, 0].set_title('Incident per hour')
 
-axs[2].plot(x, hl)
-axs[2].set_title('INCIDENT PER HOUR')
+sdr = dict(sorted(stat['RACE'].items()))
+r_x = [v for v in sdr.keys()]
+r_d = [v for v in sdr.values()]
+
+axs[1, 1].bar(r_x,r_d)
+axs[1 ,1].set_title('Races')
 
 plt.show()

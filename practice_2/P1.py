@@ -1,7 +1,7 @@
 import numpy as np
 import json
 
-datafile = ""
+datafile = "tests/z1_matrix_40.npy"
 
 matrix = np.load(datafile)
 
@@ -35,4 +35,4 @@ msd['avrSD'] = msd['sumSD'] / size
 
 norm_matrix = np.ndarray((size,size), dtype=float)
 
-np.save(datafile+"_norm")
+np.save(datafile+"_norm", norm_matrix)

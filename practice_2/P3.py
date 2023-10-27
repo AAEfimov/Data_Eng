@@ -2,7 +2,7 @@ import json
 import msgpack
 import os
 
-datafile = ""
+datafile = "tests/z3_products_40.json"
 
 with open(datafile) as f:
     data = json.load(f)
@@ -35,13 +35,12 @@ with open(datafile) as f:
 out_json_datafile = datafile + "out_json"
 
 with open(out_json_datafile, mode="w") as f_json:
-    f_json.write(json.dump(res))
+    json.dump(res, f_json)
 
 out_msgpack_datafile = datafile + "out_msgpack"
 
 with open(out_msgpack_datafile, mode="wb") as f_msg:
-    f_msg.write(msgpack.dump(res))
-
+    msgpack.dump(res, f_msg)
 
 print("JSON FILE SIZE: ", os.path.getsize(out_json_datafile))
 print("MSGPACK FILE SIZE: ", os.path.getsize(out_msgpack_datafile))

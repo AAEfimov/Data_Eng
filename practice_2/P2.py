@@ -1,6 +1,7 @@
 import numpy as np
+import os
 
-datafile = ""
+datafile = "tests/z2_matrix_40_2.npy"
 
 matrix = np.load(datafile)
 
@@ -18,5 +19,12 @@ for i in range(size):
             y.append(j)
             z.append(matrix[i][j])
 
-np.savez(datafile+"_points_z", x=x, y=y, z=z)
-np.savez_compressed(datafile + "_compressed", x=x, y=y, z=z)
+outfile_point_z = datafile+"_points_z"
+outfile_compressed = datafile + "_compressed"
+
+np.savez(outfile_point_z, x=x, y=y, z=z)
+np.savez_compressed(outfile_compressed, x=x, y=y, z=z)
+
+print("Z file size: ", os.path.getsize(outfile_point_z+ ".npz"))
+print("Compressed file size: ", os.path.getsize(outfile_compressed + ".npz"))
+

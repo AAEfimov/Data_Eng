@@ -105,7 +105,6 @@ with open(datafile_csv) as f:
         add_elemt(dataset[CASE_NUMBER]['AGE'], stat, 'AGE_HIST')
         add_elemt(dataset[CASE_NUMBER]['RACE'], stat, 'RACE')
         add_elemt(dataset[CASE_NUMBER]['SEX'], stat, 'SEX')
-        
         add_elemt(dataset[CASE_NUMBER]['MONTH'], stat, 'MONTH')
 
         if dataset[CASE_NUMBER]['MONTH'].isdigit():
@@ -134,7 +133,7 @@ with open(datafile_csv) as f:
             stat['minH'] = min(stat['minH'], nm)
             stat['maxH'] = max(stat['maxH'], nm)
             stat['sumH'] += nm
-            day_list.append(nm)
+            hour_list.append(nm)
 
 
 
@@ -142,12 +141,10 @@ stat['avgM'] = stat['sumM'] / month_cnt
 stat['MDeviation'] = deviat_calc(month_list, stat['avgM'])
 
 stat['avgDOW'] = stat['sumDOW'] / day_cnt
-stat['DOWDeviation'] = deviat_calc(month_list, stat['avgDOW'])
+stat['DOWDeviation'] = deviat_calc(day_list, stat['avgDOW'])
 
 stat['avgH'] = stat['sumH'] / month_cnt
-stat['HDeviation'] = deviat_calc(month_list, stat['avgH'])
-
-#print(sta)
+stat['HDeviation'] = deviat_calc(hour_list, stat['avgH'])
 
 with open(datafile + "_comp_stat", mode="w") as f:
     json.dump(stat, f)
@@ -169,3 +166,25 @@ print(f"MSGPACK: {round(os.path.getsize(datafile_out_msgpack) / MB, 2)} Mb")
 print(f"PICKLE: {round(os.path.getsize(datafile_out_pickle) / MB, 2)} Mb")
 
 
+# DBG
+print(stat)
+
+ml = [stat['MONTH'][str(v)] for v in range(1, 13)]
+dl = [stat['DOW'][str(v)] for v in range(1, 8)]
+hl = [stat['HOUR'][str(v)] for v in range(0, 24)]
+
+fig, axs = plt.subplots(1, 3)
+
+axs[0].plot(month_s, ml)
+axs[0].set_title('INCIDENT PER MONTH')
+
+axs[1].plot(days, dl)
+axs[1].set_title('INCIDENT PER DOW')
+
+x = [h for h in range(0, 24)]
+
+
+axs[2].plot(x, hl)
+axs[2].set_title('INCIDENT PER HOUR')
+
+plt.show()

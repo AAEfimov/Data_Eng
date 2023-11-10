@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<star>
+ <name>
+  Полярная звезда 9001
+ </name>
+ <constellation>
+  Овен
+ </constellation>
+ <spectral-class>
+  H5I
+ </spectral-class>
+ <radius>
+  999586977
+ </radius>
+ <rotation>
+  112.97 days
+ </rotation>
+ <age>
+  0.72 billion years
+ </age>
+ <distance>
+  8209924.6 million km
+ </distance>
+ <absolute-magnitude>
+  4.6 million km
+ </absolute-magnitude>
+</star>

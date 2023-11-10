@@ -42,8 +42,8 @@ with ZipFile(filename, 'r') as zf:
 
         item = {}
 
-        with open(ext_filename, mode='r') as html_fp:
-            soup = BeautifulSoup(html_fp, features="xml")
+        with open(ext_filename, mode='r') as xml_fp:
+            soup = BeautifulSoup(xml_fp, features="xml")
             
             star = soup.find("star")
 

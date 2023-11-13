@@ -53,13 +53,12 @@ def get_html_file(url, purl):
     resp = req.get(url_get)
 
     html_filename = f"dl/{purl.split('/')[-2]}.html"
-
     # print(html_filename)
     if resp.status_code != 200:
         with open(f"{file_path}/{html_filename}", mode="r") as html_f:
             resp = html_f.readlines()
 
-        return resp
+        return "".join(resp)
     else:
         dl_dir = file_path + "/dl"
         if not os.path.exists(dl_dir):

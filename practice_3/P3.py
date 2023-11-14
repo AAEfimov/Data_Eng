@@ -2,12 +2,11 @@
 import os
 import json
 import re
+from aux_func import *
 import numpy as np
 from bs4 import BeautifulSoup
-from zipfile import ZipFile
 
 # pip install bs4 lxml
-
 
 z_numb = 3
 zip_file_name = 'zip_var_40.zip'
@@ -17,75 +16,53 @@ filename = file_path + '/' + zip_file_name
 
 json_out_filename = f"{file_path}/"
 
-def get_mult(mult):
-    retv = 1
-    if mult == 'million':
-        retv = 10 ** 6
-    elif mult == 'billion':
-        retv = 10 ** 9
-    else:
-        print("UNK mul", mult)
-    return retv
+new_info = []
+bld_name_freq = {}
+rl = []
 
-with ZipFile(filename, 'r') as zf:
-    ext_dir = file_path + "/extract"
-    if not os.path.exists(ext_dir):
-        os.mkdir(ext_dir)
+for next_file in get_next_file_from_zip(filename, file_path):
+        
+    item = {}
 
-    new_info = []
-    bld_name_freq = {}
-    rl = []
+    with open(next_file, mode='r') as html_fp:
+        soup = BeautifulSoup(html_fp, features="xml")
+        
+        star = soup.find("star")
 
-    for f in zf.infolist():
-        zf.extract(f.filename, ext_dir)
-        ext_filename = os.path.join(ext_dir, f.filename)
+        s_name = star.find("name").text
+        item['star_name'] = s_name.strip()
 
-        item = {}
+        item['constellation'] = star.find("constellation").text.strip()
 
-        with open(ext_filename, mode='r') as xml_fp:
-            soup = BeautifulSoup(xml_fp, features="xml")
-            
-            star = soup.find("star")
+        add_to_dict(item['constellation'], bld_name_freq)
 
-            s_name = star.find("name").text
-            item['star_name'] = s_name.strip()
+        spec_class = star.find("spectral-class").text
+        item['spectral_class'] = spec_class.strip()
 
-            constellation = star.find("constellation").text
-            item['constellation'] = constellation.strip()
+        radius = star.find('radius').text
+        item['radius'] = int(radius.strip())
 
-            const = constellation.lower()
-            if const in bld_name_freq:
-                bld_name_freq[const] += 1
-            else:
-                bld_name_freq.setdefault(const, 1)
+        rl.append(item['radius'])
 
-            spec_class = star.find("spectral-class").text
-            item['spectral_class'] = spec_class.strip()
+        rotation = star.find('rotation').text.split()[0]
+        item['rotation'] = float(rotation)
 
-            radius = star.find('radius').text
-            item['radius'] = int(radius.strip())
+        age = star.find("age").text.split()
+        item['age'] = {}
+        item['age']['year'] = float(age[0])
+        item['age']['mult'] = get_mult(age[1])
 
-            rl.append(item['radius'])
+        distance = star.find("distance").text.split()
+        item['distance'] = {}
+        item['distance']['dist'] = float(distance[0])
+        item['distance']['mult'] = get_mult(distance[1])
 
-            rotation = star.find('rotation').text.split()[0]
-            item['rotation'] = float(rotation)
+        magn = star.find('absolute-magnitude').text.split()
+        item['magnitude'] = {}
+        item['magnitude']['km'] = float(magn[0])
+        item['magnitude']['mult'] = get_mult(magn[1])
 
-            age = star.find("age").text.split()
-            item['age'] = {}
-            item['age']['year'] = float(age[0])
-            item['age']['mult'] = get_mult(age[1])
-
-            distance = star.find("distance").text.split()
-            item['distance'] = {}
-            item['distance']['dist'] = float(distance[0])
-            item['distance']['mult'] = get_mult(distance[1])
-
-            magn = star.find('absolute-magnitude').text.split()
-            item['magnitude'] = {}
-            item['magnitude']['km'] = float(magn[0])
-            item['magnitude']['mult'] = get_mult(magn[1])
-
-        new_info.append(item)
+    new_info.append(item)
 
 print("DONE")
 

@@ -2,9 +2,10 @@
 import os
 import json
 import re
+from aux_func import *
 import numpy as np
 from bs4 import BeautifulSoup
-from zipfile import ZipFile
+
 
 z_numb = 2
 zip_file_name = 'zip_var_40.zip'
@@ -14,99 +15,86 @@ filename = file_path + '/' + zip_file_name
 
 json_out_filename = f"{file_path}/"
 
-with ZipFile(filename, 'r') as zf:
-    ext_dir = file_path + "/extract"
-    if not os.path.exists(ext_dir):
-        os.mkdir(ext_dir)
+new_info = []
+bld_name_freq = {}
+pl = []
 
-    new_info = []
-    bld_name_freq = {}
-    pl = []
+for next_file in get_next_file_from_zip(filename, file_path):
 
-    for f in zf.infolist():
-        zf.extract(f.filename, ext_dir)
-        ext_filename = os.path.join(ext_dir, f.filename)
+    with open(next_file, mode='r') as html_fp:
+        soup = BeautifulSoup(html_fp, 'html.parser')
 
-        with open(ext_filename, mode='r') as html_fp:
-            soup = BeautifulSoup(html_fp, 'html.parser')
+        s_head = soup.head
+        s_body = soup.body
 
-            s_head = soup.head
-            s_body = soup.body
+        div_flex_wrap = s_body.find("div", {"class" : "list flex-wrap"})
 
-            div_flex_wrap = s_body.find("div", {"class" : "list flex-wrap"})
+        for div_pad in div_flex_wrap.find_all("div", {"class" : "pad"}):
 
-            for div_pad in div_flex_wrap.find_all("div", {"class" : "pad"}):
+            item = dict()
+            div_prod_item = div_pad.find("div", {"class" : "product-item"})
 
-                item = dict()
-                div_prod_item = div_pad.find("div", {"class" : "product-item"})
+            a_links = div_prod_item.find_all("a")
+            data_id = a_links[0].get('data-id')
+            a_href = a_links[1].get('href')
 
-                a_links = div_prod_item.find_all("a")
-                data_id = a_links[0].get('data-id')
-                a_href = a_links[1].get('href')
+            item['link_attrib'] = {}
+            item['link_attrib']['data_id'] = int(data_id)
+            item['link_attrib']['href'] = a_href
 
-                item['link_attrib'] = {}
-                item['link_attrib']['data_id'] = int(data_id)
-                item['link_attrib']['href'] = a_href
+            img_url = div_pad.find("img")
+            item['img'] = {}
+            item['img']['loading'] = img_url.get('loading')
+            item['img']['src'] = img_url.get('src')
 
-                img_url = div_pad.find("img")
-                item['img'] = {}
-                item['img']['loading'] = img_url.get('loading')
-                item['img']['src'] = img_url.get('src')
+            full_param = div_pad.find("span").text.split()
 
-                full_param = div_pad.find("span").text.split()
+            item['device_param'] = {}
+            item['device_param']['inch'] = full_param[0][0:-1]
+            item['device_param']['company'] = " ".join(full_param[1:-1])
+            item['device_param']['flash'] = full_param[-1][0:-2]
 
-                item['device_param'] = {}
-                item['device_param']['inch'] = full_param[0][0:-1]
-                item['device_param']['company'] = " ".join(full_param[1:-1])
-                item['device_param']['flash'] = full_param[-1][0:-2]
+            add_to_dict(item['device_param']['company'], bld_name_freq)
 
-                company_name = item['device_param']['company'].lower()
-                if company_name in bld_name_freq:
-                    bld_name_freq[company_name] += 1
+            item['price'] = int("".join(div_pad.find('price').text.split()[:-1]))
+
+            pl.append(item['price'])
+
+            strong_text = div_pad.find('strong').text
+
+            bonus_val = re.search(r"\d+", strong_text)
+
+            item['bonus'] = int(bonus_val[0])
+
+            li = div_pad.find_all("li")
+            
+            item['prop'] = {}
+            for p in li:
+                prop = p.get('type')
+                p_val = p.text.split()
+
+                if prop == 'processor':
+                    item['prop']['processor'] = {}
+                    cpu = p_val[0].split('x')
+                    item['prop']['processor']['cores'] = int(cpu[0])
+                    item['prop']['processor']['freq'] = float(cpu[1])
+                elif prop == 'ram':
+                    item['prop']['ram'] = int(p_val[0])
+                elif prop == 'matrix':
+                    item['prop']['matrix'] = p_val[0]
+                elif prop == 'acc':
+                    item['prop']['acc'] = int(p_val[0])
+                elif prop == 'resolution':
+                    # p_val  # TODO x and y
+                    item['prop']['resolution'] = p.text
+                elif prop == 'camera':
+                    item['prop']['camera'] = int(p_val[0])
+                elif prop == 'sim':
+                    item['prop']['sim'] = int(p_val[0])
                 else:
-                    bld_name_freq.setdefault(company_name, 1)
-
-                price = "".join(div_pad.find('price').text.split()[:-1])
-
-                item['price'] = int(price)
-
-                pl.append(item['price'])
-
-                strong_text = div_pad.find('strong').text
-
-                bonus_val = re.search(r"\d+", strong_text)
-
-                item['bonus'] = int(bonus_val[0])
-
-                li = div_pad.find_all("li")
+                    print("ADD CASE FOR", prop, p.text)
                 
-                item['prop'] = {}
-                for p in li:
-                    prop = p.get('type')
-                    p_val = p.text.split()
-                    match prop:
-                        case 'processor':   
-                            item['prop']['processor'] = {}
-                            cpu = p_val[0].split('x')
-                            item['prop']['processor']['cores'] = int(cpu[0])
-                            item['prop']['processor']['freq'] = float(cpu[1])
-                        case 'ram':
-                            item['prop']['ram'] = int(p_val[0])
-                        case 'matrix':
-                            item['prop']['matrix'] = p_val[0]
-                        case 'acc':
-                            item['prop']['acc'] = int(p_val[0])
-                        case 'resolution':
-                            # p_val  # TODO x and y
-                            item['prop']['resolution'] = p.text
-                        case 'camera':
-                            item['prop']['camera'] = int(p_val[0])
-                        case 'sim':
-                            item['prop']['sim'] = int(p_val[0])
-                        case _:
-                            print("ADD CASE FOR", prop, p.text)
-
-                new_info.append(item)
+            new_info.append(item)
 
 outfilename = "outfile.json"
 json_out_filename_final = json_out_filename + "final_" + outfilename
@@ -153,3 +141,28 @@ with open(json_out_filename_filter, mode="w") as f_json:
 with open(json_out_filename_freq, mode="w") as f_json:
     json.dump(bld_name_freq, f_json)
 
+
+# for python 3.10 and above
+'''
+match prop:
+    case 'processor':   
+        item['prop']['processor'] = {}
+        cpu = p_val[0].split('x')
+        item['prop']['processor']['cores'] = int(cpu[0])
+        item['prop']['processor']['freq'] = float(cpu[1])
+    case 'ram':
+        item['prop']['ram'] = int(p_val[0])
+    case 'matrix':
+        item['prop']['matrix'] = p_val[0]
+    case 'acc':
+        item['prop']['acc'] = int(p_val[0])
+    case 'resolution':
+        # p_val  # TODO x and y
+        item['prop']['resolution'] = p.text
+    case 'camera':
+        item['prop']['camera'] = int(p_val[0])
+    case 'sim':
+        item['prop']['sim'] = int(p_val[0])
+    case _:
+        print("ADD CASE FOR", prop, p.text)
+'''

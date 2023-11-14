@@ -2,8 +2,8 @@
 import os
 import json
 import re
+from aux_func import *
 from bs4 import BeautifulSoup
-from zipfile import ZipFile
 import numpy as np
 
 z_numb = 1
@@ -17,26 +17,7 @@ bld_name_freq = {}
 new_info = []
 ly = []
 
-def get_next_file_from_zip(zip_arch):
-    with ZipFile(filename, 'r') as zf:
-        ext_dir = file_path + "/extract"
-        if not os.path.exists(ext_dir):
-            os.mkdir(ext_dir)
-        
-        for f in zf.infolist():
-            zf.extract(f.filename, ext_dir)
-            ext_filename = os.path.join(ext_dir, f.filename)
-
-            yield ext_filename
-
-def add_to_dict(m, fdict):
-    m = m.lower()
-    if m in fdict:
-        fdict[m] += 1
-    else:
-        fdict.setdefault(m, 1)
-
-for next_file in get_next_file_from_zip(filename):
+for next_file in get_next_file_from_zip(filename, file_path):
 
     item = {}
     item['filename'] = os.path.basename(next_file)

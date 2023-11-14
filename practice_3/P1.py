@@ -4,130 +4,123 @@ import json
 import re
 from bs4 import BeautifulSoup
 from zipfile import ZipFile
+import numpy as np
 
 z_numb = 1
 zip_file_name = 'zip_var_40.zip'
 file_path = 'tests/' + str(z_numb)
 
 filename = file_path + '/' + zip_file_name
-
 json_out_filename = f"{file_path}/"
 
-with ZipFile(filename, 'r') as zf:
-    ext_dir = file_path + "/extract"
-    if not os.path.exists(ext_dir):
-        os.mkdir(ext_dir)
+bld_name_freq = {}
+new_info = []
+ly = []
 
-    new_info = []
+def get_next_file_from_zip(zip_arch):
+    with ZipFile(filename, 'r') as zf:
+        ext_dir = file_path + "/extract"
+        if not os.path.exists(ext_dir):
+            os.mkdir(ext_dir)
+        
+        for f in zf.infolist():
+            zf.extract(f.filename, ext_dir)
+            ext_filename = os.path.join(ext_dir, f.filename)
 
-    year_min = 9999
-    year_max = 0
-    year_total = 0
-    year_cnt = 0
-    year_mid = 0
+            yield ext_filename
 
-    bld_name_freq = {}
+def add_to_dict(m, fdict):
+    m = m.lower()
+    if m in fdict:
+        fdict[m] += 1
+    else:
+        fdict.setdefault(m, 1)
 
-    for f in zf.infolist():
-        zf.extract(f.filename, ext_dir)
-        ext_filename = os.path.join(ext_dir, f.filename)
+for next_file in get_next_file_from_zip(filename):
 
-        item = {}
+    item = {}
+    item['filename'] = os.path.basename(next_file)
+    
+    with open(next_file, mode='r') as html_fp:
+        soup = BeautifulSoup(html_fp, 'html.parser')
 
-        with open(ext_filename, mode='r') as html_fp:
-            soup = BeautifulSoup(html_fp, 'html.parser')
+        bw = soup.find("div", {"class": "build-wrapper"})
 
-            item['filename'] = f.filename
+        div_iter = iter(bw.find_all("div"))
 
-            s_head = soup.head
-            s_body = soup.body
+        # city
+        elem_city = next(div_iter)
+        item['city'] = elem_city.find("span").text.split(':')[1].strip()
 
-            bw = soup.find("div", {"class": "build-wrapper"})
+        # building address
+        elem_building = next(div_iter)
+        building = elem_building.find("h1", {"class" : "title", "id" : "1"})
+        item['building'] = {}
+        bld = building.text.split(':')[1]
 
-            div_iter = iter(bw.find_all("div"))
+        building_num = re.search(r'\d+', bld)
+        building_name = bld.replace(building_num[0], '')
 
-            # city
-            elem_city = next(div_iter)
-            item['city'] = elem_city.find("span").text.split(':')[1].strip()
+        bld_name = building_name.strip()
 
-            # building address
-            elem_building = next(div_iter)
-            building = elem_building.find("h1", {"class" : "title", "id" : "1"})
-            item['building'] = {}
-            bld = building.text.split(':')[1]
+        item['building']['name'] = bld_name
+        item['building']['number'] = int(building_num[0])
 
-            building_num = re.search(r'\d+', bld)
-            building_name = bld.replace(building_num[0], '')
+        add_to_dict(bld_name, bld_name_freq)
 
-            bld_name = building_name.strip()
+        #street
+        item['address'] = {}
+        street = elem_building.find("p", {'class' : 'address-p'})
 
-            item['building']['name'] = bld_name
-            item['building']['number'] = int(building_num[0])
+        str_clean = re.sub("^\s+|\n|\r|\s+$", '', street.text)
+        str_clean = str_clean.replace("Улица:", '').replace("Индекс:", ' ').split()
 
-            bld_label = bld_name.lower()
+        item['address']['street'] = f"{str_clean[0]} {str_clean[1]}"
+        item['address']['num'] = int(str_clean[2])
+        item['address']['index'] = int(str_clean[3])
 
-            if bld_label in bld_name_freq:
-                bld_name_freq[bld_label] += 1
-            else:
-                bld_name_freq.setdefault(bld_label, 1)
+        elem_building_info = next(div_iter)
+        ebi_span_iter = iter(elem_building_info.find_all("span"))
 
-            #street
-            item['address'] = {}
-            street = elem_building.find("p", {'class' : 'address-p'})
+        item['building_info'] = {}
 
-            str_clean = re.sub("^\s+|\n|\r|\s+$", '', street.text)
-            str_clean = str_clean.replace("Улица:", '').replace("Индекс:", ' ').split()
+        eb_floors = next(ebi_span_iter)
 
-            item['address']['street'] = f"{str_clean[0]} {str_clean[1]}"
-            item['address']['num'] = int(str_clean[2])
-            item['address']['index'] = int(str_clean[3])
+        item['building_info']['floors'] = int(re.search("\d+", eb_floors.text)[0])
 
-            elem_building_info = next(div_iter)
-            ebi_span_iter = iter(elem_building_info.find_all("span"))
+        eb_year = next(ebi_span_iter)
 
-            item['building_info'] = {}
+        item['building_info']['year'] = int(re.search("\d+", eb_year.text)[0])
 
-            eb_floors = next(ebi_span_iter)
+        ly.append(item['building_info']['year'])
 
-            item['building_info']['floors'] = int(re.search("\d+", eb_floors.text)[0])
+        eb_parking = next(ebi_span_iter)
+        item['building_info']['parking'] = eb_parking.text.split(':')[1].strip()
 
-            eb_year = next(ebi_span_iter)
-            cur_year = int(re.search("\d+", eb_year.text)[0])
+        # img
+        img_src = next(div_iter)
 
-            item['building_info']['year'] = cur_year
+        img_url_f = img_src.find('img')
+        img_url_a = ''
 
-            year_min = min(year_min, cur_year)
-            year_max = max(year_max, cur_year)
-            year_total += cur_year
-            year_cnt += 1         
+        if img_url_f:
+            img_url_a = img_url_f.get('src')
 
-            eb_parking = next(ebi_span_iter)
-            item['building_info']['parking'] = eb_parking.text.split(':')[1].strip()
+        item['building_photo'] = img_url_a
 
-            # img
-            img_src = next(div_iter)
+        # reit / view
 
-            img_url_f = img_src.find('img')
-            img_url_a = ''
+        revi = next(div_iter)
 
-            if img_url_f:
-                img_url_a = img_url_f.get('src')
+        revi_iter = iter(revi.find_all('span'))
 
-            item['building_photo'] = img_url_a
+        reit = next(revi_iter)
+        item['add_info'] = {}
+        item['add_info']['reit'] = float(reit.text.split(':')[1].strip())
 
-            # reit / view
+        views = next(revi_iter)
 
-            revi = next(div_iter)
-
-            revi_iter = iter(revi.find_all('span'))
-
-            reit = next(revi_iter)
-            item['add_info'] = {}
-            item['add_info']['reit'] = float(reit.text.split(':')[1].strip())
-
-            views = next(revi_iter)
-
-            item['add_info']['views'] = int(views.text.split(':')[1].strip())
+        item['add_info']['views'] = int(views.text.split(':')[1].strip())
 
         new_info.append(item)
 
@@ -139,7 +132,7 @@ json_out_filename_freq = json_out_filename + "freq_" + outfilename
 
 #results
 
-print(f"min_year {year_min}\nmax_year {year_max}\nsum_of_years {year_total}\nmid_year {round(year_total/year_cnt)}\ncnt {year_cnt}")
+print(f"min_year {np.min(ly)}\nmax_year {np.max(ly)}\nsum_of_years {np.sum(ly)}\nmid_year {np.mean(ly)}\ncnt {len(ly)}")
 
 # final
 

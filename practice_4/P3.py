@@ -84,3 +84,5 @@ if __name__ == "__main__":
     ex4 = json_out.format("ex4")
     get_data_filtered(conn, cursor, table_name, 300000, 'duration_ms', varian + 15, 'song', ex4)
 
+    conn.close()
+

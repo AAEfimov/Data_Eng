@@ -59,7 +59,9 @@ if __name__ == "__main__":
     get_data_limit(conn, cursor, table_name, varian + 10,  'published_year', ex1)
 
     print_sum_min_max(conn, cursor, table_name, 'rating')
-    print_freqes(conn, cursor, table_name, 'author')
+
+    ex3 = json_out.format("ex3")
+    print_freqes(conn, cursor, table_name, 'author', ex3)
 
     ex4 = json_out.format("ex4")
 

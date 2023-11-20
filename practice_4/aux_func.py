@@ -39,17 +39,13 @@ def print_sum_min_max(conn, cursor, table_name, fild):
     print("rating results : ", d)
 
 def print_freqes(conn, cursor, table_name, fild):
-    
-    df = {}
-    res = cursor.execute(f"SELECT {fild} from {table_name}")
-    for f in res.fetchall():
-        add_to_dict(f[0], df)
-    print(df)
+    res = cursor.execute(f"SELECT {fild}, COUNT(*) as cnt from {table_name} GROUP BY {fild}")
+    for r in res.fetchall():
+        print(dict(r))
 
 def write_data_to_json(data, filename):
     with open(filename, mode='w') as f_json:
         json.dump(data, f_json)
-
 
 def get_data_limit(conn, cursor, table_name, val, ord_fild, json_filename):
     # DESC for UP to DOWN

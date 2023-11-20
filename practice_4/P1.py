@@ -56,8 +56,8 @@ if __name__ == "__main__":
     # fill_database(conn, cursor, data, table_name)
 
     ex1 = json_out.format("ex1")
-
     get_data_limit(conn, cursor, table_name, varian + 10,  'published_year', ex1)
+
     print_sum_min_max(conn, cursor, table_name, 'rating')
     print_freqes(conn, cursor, table_name, 'author')
 

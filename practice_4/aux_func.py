@@ -33,10 +33,12 @@ def dict_filter_lt(val, fil):
     return lambda x: x[fil] < val
 
 def print_sum_min_max(conn, cursor, table_name, fild):
-    result = cursor.execute(f"SELECT MIN({fild}) as min_v, MAX({fild}) as max_v, SUM({fild}) as sum, COUNT({fild}) as cnt from {table_name}")
-    res = list(*result)
+
+    result = cursor.execute(f"SELECT MIN({fild}) as min, MAX({fild}) as max, SUM({fild}) as sum, COUNT({fild}) as cnt, AVG({fild}) as avg_v from {table_name}")
+    res = result.fetchone()
+    #d = dict(result.fetchall()) # ???
     print("rating results")
-    print(f"MIN {res[0]}, MAX {res[1]}, SUM {round(res[2], 2)}, CNT {res[3]} AVG {round(res[2] / res[3], 2)}")
+    print(f"MIN {res[0]}, MAX {res[1]}, SUM {round(res[2], 2)}, CNT {res[3]} AVG {round(res[4], 2)}")
 
 def print_freqes(conn, cursor, table_name, fild):
     
@@ -46,14 +48,17 @@ def print_freqes(conn, cursor, table_name, fild):
         add_to_dict(f[0], df)
     print(df)
 
+def write_data_to_json(data, filename):
+    with open(filename, mode='w') as f_json:
+        json.dump(data, f_json)
+
+
 def get_data_limit(conn, cursor, table_name, val, ord_fild, json_filename):
     # DESC for UP to DOWN
-    result = cursor.execute("SELECT * FROM {} ORDER BY {} LIMIT {} ".format(table_name, ord_fild, val))
-    with open(json_filename, mode='w') as f_json:
-        json.dump([*result], f_json)
-
+    result = cursor.execute(f"SELECT * FROM {table_name} ORDER BY {ord_fild} LIMIT {val} ")
+    write_data_to_json([*result], json_filename)
 
 def get_data_filtered(conn, cursor, table_name, filter_cnt, filter_fild, out_cnt, sort_fild, json_filename):
     result = cursor.execute(f"SELECT * FROM {table_name} WHERE {filter_fild} > {filter_cnt} ORDER BY {sort_fild} DESC LIMIT {out_cnt}")
-    with open(json_filename, mode='w') as f_json:
-        json.dump([*result], f_json)
+
+    write_data_to_json([*result], json_filename)

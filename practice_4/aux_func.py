@@ -48,9 +48,9 @@ def print_freqes(conn, cursor, table_name, fild, json_filename):
 
 def get_data_limit(conn, cursor, table_name, val, ord_fild, json_filename):
     # DESC for UP to DOWN
-    result = cursor.execute(f"SELECT * FROM {table_name} ORDER BY {ord_fild} LIMIT {val} ")
+    result = cursor.execute(f"SELECT * FROM {table_name} ORDER BY {ord_fild} LIMIT ?", [val])
     write_data_to_json([dict(r) for r in result.fetchall()], json_filename)
 
 def get_data_filtered(conn, cursor, table_name, filter_cnt, filter_fild, out_cnt, sort_fild, json_filename):
-    result = cursor.execute(f"SELECT * FROM {table_name} WHERE {filter_fild} > {filter_cnt} ORDER BY {sort_fild} DESC LIMIT {out_cnt}")
+    result = cursor.execute(f"SELECT * FROM {table_name} WHERE {filter_fild} > ? ORDER BY {sort_fild} DESC LIMIT ?", [filter_cnt, out_cnt])
     write_data_to_json([dict(r) for r in result.fetchall()], json_filename)

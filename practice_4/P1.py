@@ -64,7 +64,6 @@ if __name__ == "__main__":
     print_freqes(conn, cursor, table_name, 'author', ex3)
 
     ex4 = json_out.format("ex4")
-
     get_data_filtered(conn, cursor, table_name, 35000, 'views', varian + 10, 'pages', ex4)
 
     conn.close()

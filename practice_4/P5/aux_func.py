@@ -12,7 +12,7 @@ def create_connection(db_file):
     cursor = connection.cursor()
     return connection, cursor
 
-def fill_database(conn, cursor, data, table_name):
+def fill_database(conn, cursor, data, table_name, autocommit = True):
     columns = ', '.join(data[0].keys())
     placeholders = ', '.join('?' * len(data[0]))
     sql_request = 'INSERT INTO {} ({}) VALUES ({})'.format(table_name, columns, placeholders)
@@ -21,7 +21,8 @@ def fill_database(conn, cursor, data, table_name):
         values = [x for x in d.values()]
         cursor.execute(sql_request, values)
 
-    conn.commit()
+    if autocommit:
+        conn.commit()
 
 def add_to_dict(m, fdict):
     m = m.lower()

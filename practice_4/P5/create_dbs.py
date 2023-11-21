@@ -8,7 +8,7 @@ import re
 from  aux_func  import *
 import csv
 import random
-
+import sys
 
 def get_data(filename):
 
@@ -27,10 +27,6 @@ def get_data(filename):
                 dict_data.setdefault(d['slot'], [d])
 
     return dict_data, list(slot_set)
-
-# {'Barrow', 'Axe', 'Trolley', 'Head', 'Spear', 'Bracelet', 'Knife', 'Eikon', 'Orb', 'Katar', 'Armour', 
-# 'Shoes', 'Mace', 'Tail', 'Robe', 'Mount', 'Book', 'Accessory', 'Mouth', 'Face', 'Knuckle', 'Sword', 
-# 'Bow', 'Shield', 'Staff', 'mouth', 'Bracer', 'Wing'}
 
 def get_person_data(fn):
 
@@ -130,12 +126,13 @@ def add_data_to_database(conn, cursor, data):
 
 def create_and_fill_databases(game_databe, equipmen_zip, persons):
 
-    # Create Item DB
+    # Create Item DB and Tables
     conn, cursor = create_connection(game_databe)
     data, slots = get_data(equipmen_zip)
     create_equip_tables(conn, cursor, slots)
     add_data_to_database(conn, cursor, data)
 
+    # Create Person DB and Tables
     person_data = get_person_data(persons)
     create_person_table(conn, cursor, 'chars')
     fill_database(conn, cursor, person_data, 'chars')
@@ -155,3 +152,12 @@ def generate_persons(peroson_nl, person_out):
         for n in data:
             line = f"{n},{random.randint(1,10)},{random.randint(1,10)},{random.randint(0,1)},{wl[random.randint(0,len(wl) - 1)]},{random.randint(1,20)},{random.randint(1,20)},{random.randint(1,20)},{random.randint(1,20)},{random.randint(1,20)},{random.randint(1,20)},{random.randint(1,20)}"
             cwr.writerow(line.split(','))
+
+
+if __name__ == "__main__":
+
+    if len(sys.argv) < 4:
+        print(f"USE: {sys.argv[0]} database_name zipfile person_list")
+    else:
+        create_and_fill_databases(sys.argv[1], sys.argv[2], sys.argv[3])
+        

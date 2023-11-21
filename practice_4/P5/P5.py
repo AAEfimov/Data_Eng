@@ -17,7 +17,9 @@ person_out = 'persons.csv'
 
 if __name__ == '__main__':
 
-    generate_persons(persons_namelist, person_out)
-    create_and_fill_databases(game_databe, equipmen_zip, person_out)
+    #generate_persons(persons_namelist, person_out)
+    #create_and_fill_databases(game_databe, equipmen_zip, person_out)
 
-    #print(db_name)
+    conn, cursor = create_connection(game_databe)
+
+    conn.close()

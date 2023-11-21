@@ -16,7 +16,6 @@ json_out = "tests/4/{}.json"
 
 
 def parse_data(fn):
-
     csv_del = ';'
     data = []
     with open(fn, mode='r') as csv_f:
@@ -29,7 +28,7 @@ def parse_data(fn):
 
                 data.append(nd)
 
-    return data
+    return data[1:]
 
 def parse_upd_date(fn):
     with open(fn, mode='rb') as pkl_f:
@@ -45,23 +44,46 @@ def parse_upd_date(fn):
 
 def update_database(conn, cursor, table_name, data):
     for d in data:
+
         if d['method'] == 'available':
-            response = cursor.execute(f"UPDATE {table_name} SET isAvailable = ? WHERE name == ?", [d['param'], d['name']])
+            response = cursor.execute(f"UPDATE {table_name} SET isAvailable = ?, counter = counter + 1 WHERE name == ?", ['True' if d['param'] else 'False', d['name']])
         elif d['method'] == 'quantity_sub':
-            response = cursor.execute("SELECT")
-            pass
+            response = cursor.execute(f"UPDATE {table_name} SET quantity = MAX(quantity - ?, 0), counter = counter + 1 WHERE name = ?", [int(d['param']) , d['name']])
         elif d['method'] == 'quantity_add':
-            pass
+            response = cursor.execute(f"UPDATE {table_name} SET quantity = quantity + ?, counter = counter + 1 WHERE name = ?", [int(d['param']), d['name']])
         elif d['method'] == 'price_percent':
-            pass
+            response = cursor.execute(f"UPDATE {table_name} SET price = price * (1 + ?), counter = counter + 1 WHERE name = ?", [float(d['param']), d['name']])
         elif d['method'] == 'remove':
-            pass
+            response = cursor.execute(f"DELETE FROM {table_name} WHERE name = ?" ,[d['name']])
         elif d['method'] == 'price_abs':
-            pass
+            response = cursor.execute(f"UPDATE {table_name} SET price = MAX(price + ?, 0), counter = counter + 1 WHERE name = ?", [int(d['param']), d['name']])
         else:
             print("UNK method ", d['method'])
 
     conn.commit()
+
+def get_top_updated(conn, cursor, table_name):
+    response = cursor.execute(f"SELECT name, counter FROM {table_name} ORDER BY counter DESC LIMIT 10")
+    write_data_to_json([dict(r) for r in response.fetchall()], json_out.format("ex1"))
+
+
+def get_prices_by_category(conn, cursor, table_name):
+    response = cursor.execute(f"SELECT category, COUNT(*) as cnt, MAX(price) as max, MIN(price) as min , \
+                               SUM(price) as sum, AVG(price) as avg FROM {table_name} GROUP BY category")
+    
+    write_data_to_json([dict(r) for r in response.fetchall()], json_out.format("ex2"))
+
+def get_quantity_by_category(conn, cursor, table_name):
+    response = cursor.execute(f"SELECT category, MAX(quantity) as max, MIN(quantity) as min , \
+                               SUM(quantity) as sum, AVG(quantity) as avg FROM {table_name} GROUP BY category")
+    
+    write_data_to_json([dict(r) for r in response.fetchall()], json_out.format("ex3"))
+
+def get_data_from_citys(conn, cursor, table_name, city_list):
+    placeholder = ' or '.join(['fromCity = ?'] * len(city_list))
+    response = cursor.execute(f"SELECT fromCity, MAX(views) as max, MIN(views) as min FROM {table_name} WHERE {placeholder} GROUP BY fromCity", city_list)
+
+    write_data_to_json([dict(r) for r in response.fetchall()], json_out.format("ex4"))
 
 if __name__ == "__main__":
 
@@ -91,7 +113,12 @@ if __name__ == "__main__":
     fill_database(conn, cursor, data, table_name)
 
     upd_data = parse_upd_date(filename2)
-
     update_database(conn, cursor, table_name, upd_data)
+
+
+    get_top_updated(conn, cursor, table_name)
+    get_prices_by_category(conn, cursor, table_name)
+    get_quantity_by_category(conn, cursor, table_name)
+    get_data_from_citys(conn, cursor, table_name, ['Тбилиси', 'Москва', 'Тирана'])
 
     conn.close()

@@ -40,7 +40,7 @@ if __name__ == "__main__":
     conn, cursor = create_connection(dbname)
     try:
         cursor.execute('CREATE TABLE {} \
-            	(id INTEGER PRIMARY KEY, \
+            	(id INTEGER PRIMARY KEY AUTOINCREMENT, \
                    title TEXT, \
                    author TEXT, \
                    genre TEXT, \

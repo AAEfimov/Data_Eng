@@ -72,7 +72,7 @@ if __name__ == "__main__":
 
     try:
         cursor.execute('CREATE TABLE {} \
-            	(id INTEGER PRIMARY KEY, \
+            	(id INTEGER PRIMARY KEY AUTOINCREMENT, \
                    name TEXT, \
                    price INTEGER, \
                    quantity INTEGER, \

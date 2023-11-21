@@ -68,7 +68,10 @@ if __name__ == "__main__":
     table_name = 'products'
     conn, cursor = create_connection(dbname)
 
-    cursor.execute(f'DROP TABLE {table_name}')
+    try:
+        cursor.execute(f'DROP TABLE {table_name}')
+    except sqlite3.OperationalError:
+        print("No table")
 
     try:
         cursor.execute('CREATE TABLE {} \

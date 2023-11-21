@@ -38,6 +38,12 @@ def parse_data(file):
 if __name__ == "__main__":
     table_name = 'books'   
     conn, cursor = create_connection(dbname)
+
+    try:
+        cursor.execute(f'DROP TABLE {table_name}')
+    except sqlite3.OperationalError:
+        print("No table")
+
     try:
         cursor.execute('CREATE TABLE {} \
             	(id INTEGER PRIMARY KEY AUTOINCREMENT, \
@@ -52,8 +58,8 @@ if __name__ == "__main__":
     except sqlite3.OperationalError:
         print("Table exist")
 
-    # data = parse_data(filename)
-    # fill_database(conn, cursor, data, table_name)
+    data = parse_data(filename)
+    fill_database(conn, cursor, data, table_name)
 
     ex1 = json_out.format("ex1")
     get_data_limit(conn, cursor, table_name, varian + 10,  'published_year', ex1)

@@ -95,9 +95,6 @@ def create_person_table(conn, cursor, tablename):
     except:
         print(f"table {tablename} already exists")
 
-
-
-
 def add_data_to_database(conn, cursor, data):
    
     stat_set = set()
@@ -135,16 +132,16 @@ def create_and_fill_databases(game_databe, equipmen_zip, persons):
 
     # Create Item DB
     conn, cursor = create_connection(game_databe)
-    #data, slots = get_data(equipmen_zip)
-    #create_equip_tables(conn, cursor, slots)
-    #add_data_to_database(conn, cursor, data)
+    data, slots = get_data(equipmen_zip)
+    create_equip_tables(conn, cursor, slots)
+    add_data_to_database(conn, cursor, data)
 
     person_data = get_person_data(persons)
     create_person_table(conn, cursor, 'chars')
-    
+    fill_database(conn, cursor, person_data, 'chars')
+
     conn.close()
 
-    return game_databe
 
 def generate_persons(peroson_nl, person_out):
     fields = ['name','Def','Atk','Trolley','Weapon_name','Weapon_id','Head','Bracelet','Armour','Shoes','Robe','Accessory']

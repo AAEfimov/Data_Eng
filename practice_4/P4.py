@@ -51,14 +51,18 @@ def update_database(conn, cursor, table_name, data):
             param = d['param']
             response = cursor.execute(f"UPDATE {table_name} SET quantity = MAX(quantity - ?, 0), counter = counter + 1 WHERE name = ? AND ((quantity - ?) > 0)", [param, d['name'], param])
         elif d['method'] == 'quantity_add':
-            response = cursor.execute(f"UPDATE {table_name} SET quantity = quantity + ?, counter = counter + 1 WHERE name = ?", [d['param'], d['name']])
+            response = cursor.execute(f"UPDATE {table_name} SET quantity = quantity + ? WHERE name = ?", [d['param'], d['name']])
+            if response.rowcount > 0:
+                cursor.execute(f"UPDATE {table_name} SET counter = counter + 1 WHERE name = ?", [d['name']])
         elif d['method'] == 'price_percent':
             response = cursor.execute(f"UPDATE {table_name} SET price = ROUND(price * (1 + ?), 2), counter = counter + 1 WHERE name = ?", [d['param'], d['name']])
         elif d['method'] == 'remove':
             response = cursor.execute(f"DELETE FROM {table_name} WHERE name = ?" ,[d['name']])
         elif d['method'] == 'price_abs':
             param = d['param']
-            response = cursor.execute(f"UPDATE {table_name} SET price = MAX(price + ?, 0), counter = counter + 1 WHERE name = ? AND ((price + ?) > 0)", [param, d['name'], param])
+            response = cursor.execute(f"UPDATE {table_name} SET price = MAX(price + ?, 0) WHERE name = ? AND ((price + ?) > 0)", [param, d['name'], param])
+            if response.rowcount > 0:
+                cursor.execute(f"UPDATE {table_name} SET counter = counter + 1 WHERE name = ?", [d['name']])
         else:
             print("UNK method ", d['method'])
 

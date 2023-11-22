@@ -52,7 +52,7 @@ def update_database(conn, cursor, table_name, data):
         elif d['method'] == 'quantity_add':
             response = cursor.execute(f"UPDATE {table_name} SET quantity = quantity + ?, counter = counter + 1 WHERE name = ?", [int(d['param']), d['name']])
         elif d['method'] == 'price_percent':
-            response = cursor.execute(f"UPDATE {table_name} SET price = price * (1 + ?), counter = counter + 1 WHERE name = ?", [float(d['param']), d['name']])
+            response = cursor.execute(f"UPDATE {table_name} SET price = ROUND(price * (1 + ?), 2), counter = counter + 1 WHERE name = ?", [float(d['param']), d['name']])
         elif d['method'] == 'remove':
             response = cursor.execute(f"DELETE FROM {table_name} WHERE name = ?" ,[d['name']])
         elif d['method'] == 'price_abs':
@@ -69,7 +69,7 @@ def get_top_updated(conn, cursor, table_name):
 
 def get_prices_by_category(conn, cursor, table_name):
     response = cursor.execute(f"SELECT category, COUNT(*) as cnt, MAX(price) as max, MIN(price) as min , \
-                               SUM(price) as sum, AVG(price) as avg FROM {table_name} GROUP BY category")
+                               ROUND(SUM(price), 2) as sum, ROUND(AVG(price), 2) as avg FROM {table_name} GROUP BY category")
     
     write_data_to_json([dict(r) for r in response.fetchall()], json_out.format("ex2"))
 

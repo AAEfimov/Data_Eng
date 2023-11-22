@@ -36,14 +36,15 @@ def dict_filter_gt(val, fil):
 def dict_filter_lt(val, fil):
     return lambda x: x[fil] < val
 
-def print_sum_min_max(conn, cursor, table_name, fild):
-    result = cursor.execute(f"SELECT MIN({fild}) as min, MAX({fild}) as max, SUM({fild}) as sum, COUNT({fild}) as cnt, AVG({fild}) as avg from {table_name}")
-    d = dict(result.fetchone())
-    print("rating results : ", d)
-
 def write_data_to_json(data, filename):
     with open(filename, mode='w') as f_json:
         json.dump(data, f_json)
+
+def print_sum_min_max(conn, cursor, table_name, fild, json_filename):
+    result = cursor.execute(f"SELECT MIN({fild}) as min, MAX({fild}) as max, SUM({fild}) as sum, COUNT({fild}) as cnt, AVG({fild}) as avg from {table_name}")
+    d = dict(result.fetchone())
+    print("rating results : ", d)
+    write_data_to_json(d, json_filename)
 
 def print_freqes(conn, cursor, table_name, fild, json_filename):
     result = cursor.execute(f"SELECT {fild}, COUNT(*) as cnt from {table_name} GROUP BY {fild}")

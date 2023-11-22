@@ -44,8 +44,10 @@ def get_avg_price(conn, cursor, author, online):
                             FROM books_up WHERE books_id = (SELECT id FROM books WHERE author = ?) AND place = ?", 
                             [author, online])
 
-    d = dict(result.fetchone())
-    print(d)    
+    # d = dict(result.fetchone())
+    # print(d)
+
+    write_data_to_json([dict(r) for r in result.fetchall()],  json_out.format("ex2"))
 
 def get_books_count_by_all(conn, cursor):
     result = cursor.execute("""SELECT id, author,
@@ -53,16 +55,19 @@ def get_books_count_by_all(conn, cursor):
                             FROM books
                             ORDER BY counter DESC""")
     
-    for d in result.fetchall():
-        print(dict(d))
+    write_data_to_json([dict(r) for r in result.fetchall()],  json_out.format("ex3"))
+
+    #for d in result.fetchall():
+    #    print(dict(d))
 
 def get_books_count(conn, cursor, author):
     result = cursor.execute("""SELECT title, COUNT(title) as counter
                             FROM books_up WHERE books_id = (SELECT id FROM books WHERE author = ?)
                             ORDER BY counter DESC""", [author])
-    
-    for d in result.fetchall():
-        print(dict(d))
+   
+    write_data_to_json([dict(r) for r in result.fetchall()],  json_out.format("ex4"))
+    # for d in result.fetchall():
+    #    print(dict(d))
 
 if __name__ == "__main__":
 
@@ -75,13 +80,9 @@ if __name__ == "__main__":
         print("No table")
 
     try:
-        cursor.execute('CREATE TABLE {} \
-            	(id INTEGER PRIMARY KEY AUTOINCREMENT, \
-                   books_id REFERENCES books (id), \
-                   title TEXT, \
-                   price INTEGER, \
-                   place TEXT, \
-                   date TEXT)'.format(table_name))
+        cursor.execute(f"""CREATE TABLE {table_name} (id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                                books_id REFERENCES books (id), 
+                                title TEXT, price INTEGER, place TEXT, date TEXT)""")
     except sqlite3.OperationalError:
         print("Table exist")
 

@@ -45,16 +45,10 @@ if __name__ == "__main__":
         print("No table")
 
     try:
-        cursor.execute('CREATE TABLE {} \
-            	(id INTEGER PRIMARY KEY AUTOINCREMENT, \
-                   title TEXT, \
-                   author TEXT, \
-                   genre TEXT, \
-                   pages INTEGER, \
-                   published_year INTEGER, \
-                   isbn TEXT, \
-                   rating REAL, \
-                   views INTEGER)'.format(table_name))
+        cursor.execute(f"""CREATE TABLE {table_name} 
+                    (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT,
+                    author TEXT, genre TEXT, pages INTEGER, published_year INTEGER, 
+                    isbn TEXT, rating REAL, views INTEGER)""")
     except sqlite3.OperationalError:
         print("Table exist")
 
@@ -64,7 +58,7 @@ if __name__ == "__main__":
     ex1 = json_out.format("ex1")
     get_data_limit(conn, cursor, table_name, varian + 10,  'published_year', ex1)
 
-    print_sum_min_max(conn, cursor, table_name, 'rating')
+    print_sum_min_max(conn, cursor, table_name, 'rating', json_out.format("ex2"))
 
     ex3 = json_out.format("ex3")
     print_freqes(conn, cursor, table_name, 'author', ex3)

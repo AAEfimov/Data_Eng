@@ -48,15 +48,17 @@ def update_database(conn, cursor, table_name, data):
         if d['method'] == 'available':
             response = cursor.execute(f"UPDATE {table_name} SET isAvailable = ?, counter = counter + 1 WHERE name == ?", ['True' if d['param'] else 'False', d['name']])
         elif d['method'] == 'quantity_sub':
-            response = cursor.execute(f"UPDATE {table_name} SET quantity = MAX(quantity - ?, 0), counter = counter + 1 WHERE name = ?", [int(d['param']) , d['name']])
+            param = d['param']
+            response = cursor.execute(f"UPDATE {table_name} SET quantity = MAX(quantity - ?, 0), counter = counter + 1 WHERE name = ? AND ((quantity - ?) > 0)", [param, d['name'], param])
         elif d['method'] == 'quantity_add':
-            response = cursor.execute(f"UPDATE {table_name} SET quantity = quantity + ?, counter = counter + 1 WHERE name = ?", [int(d['param']), d['name']])
+            response = cursor.execute(f"UPDATE {table_name} SET quantity = quantity + ?, counter = counter + 1 WHERE name = ?", [d['param'], d['name']])
         elif d['method'] == 'price_percent':
-            response = cursor.execute(f"UPDATE {table_name} SET price = ROUND(price * (1 + ?), 2), counter = counter + 1 WHERE name = ?", [float(d['param']), d['name']])
+            response = cursor.execute(f"UPDATE {table_name} SET price = ROUND(price * (1 + ?), 2), counter = counter + 1 WHERE name = ?", [d['param'], d['name']])
         elif d['method'] == 'remove':
             response = cursor.execute(f"DELETE FROM {table_name} WHERE name = ?" ,[d['name']])
         elif d['method'] == 'price_abs':
-            response = cursor.execute(f"UPDATE {table_name} SET price = MAX(price + ?, 0), counter = counter + 1 WHERE name = ?", [int(d['param']), d['name']])
+            param = d['param']
+            response = cursor.execute(f"UPDATE {table_name} SET price = MAX(price + ?, 0), counter = counter + 1 WHERE name = ? AND ((price + ?) > 0)", [param, d['name'], param])
         else:
             print("UNK method ", d['method'])
 
@@ -96,16 +98,8 @@ if __name__ == "__main__":
         print("No table")
 
     try:
-        cursor.execute('CREATE TABLE {} \
-            	(id INTEGER PRIMARY KEY AUTOINCREMENT, \
-                   name TEXT, \
-                   price INTEGER, \
-                   quantity INTEGER, \
-                   category TEXT, \
-                   fromCity TEXT, \
-                   isAvailable INTEGER, \
-                   views INTEGER, \
-                   counter INTEGER)'.format(table_name))
+        cursor.execute(f"""CREATE TABLE {table_name} (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price INTEGER, quantity INTEGER, category TEXT,
+                                                      fromCity TEXT, isAvailable INTEGER, views INTEGER, counter INTEGER)""")
     except sqlite3.OperationalError:
         print("Table exist")
 

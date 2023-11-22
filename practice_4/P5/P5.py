@@ -31,9 +31,7 @@ def get_axe_weapon_names_by_chars(conn, cursor):
 
 
 def get_chars_with_max_atk_mace(conn, cursor):
-    # default Atk + Weapon Atk
-    # Не понимаю почему сложение с Алиасом не сработало
-    # wepon_atk + Atk AS total_atk
+    # default Atk + Weapon Atk1
     """
     result = cursor.execute("SELECT name, weapon_name, weapon_id, Atk,  \
                              (SELECT Atk FROM Mace WHERE id = weapon_id) AS wepon_atk, \
@@ -59,15 +57,18 @@ def get_chars_def(conn, cursor):
                             (SELECT Accessory FROM Head WHERE id = Accessory)\
                             AS Total_def FROM chars ORDER BY Total_def DESC")
     """
-    # NEW FORMAT
-    result = cursor.execute("SELECT chars.name, Head.name as Head,  Bracelet.name as Bracelet, Armour.name as Armour, Shoes.name as Shoes,  Robe.name as Robe, Accessory.name as Accessory \
+
+    result = cursor.execute("SELECT chars.name, chars.Def, Head.Def as Head_def, Bracelet.Def as Bracelet_def, Armour.Def as Armour_def, Shoes.Def as Shoes_def, Robe.Def as Robe_def , Accessory.Def as Accessory_def, \
+                            chars.Def + Head.Def +  Bracelet.Def + Armour.Def + Shoes.Def + Robe.Def + Accessory.Def AS Total_def \
                             FROM chars JOIN Head JOIN Bracelet JOIN Armour JOIN Shoes JOIN Robe JOIN Accessory WHERE \
-                            Head.id = chars.Head AND Bracelet.id = chars.Bracelet AND Armour.id = chars.Armour AND Shoes.id = chars.Shoes AND Robe.id = chars.Robe AND Accessory.id = chars.Accessory")
+                            Head.id = chars.Head AND Bracelet.id = chars.Bracelet AND Armour.id = chars.Armour AND Shoes.id = chars.Shoes AND Robe.id = chars.Robe AND Accessory.id = chars.Accessory \
+                            ORDER BY Total_def DESC")
 
     write_data_to_json([dict(r) for r in result.fetchall()], json_out.format("q5"))
 
 def get_chars_all_armour_names(conn, cursor, limit = 20):
 
+    """
     result = cursor.execute("SELECT name, Head as head_id, Bracelet as brace_id, Armour as arm_id, Shoes as shoes_id , Robe as robe_id, Accessory as acc_id, \
                             (SELECT name FROM Head WHERE id = Head) as nHead, \
                             (SELECT name FROM Head WHERE id = Bracelet) as nBracelet, \
@@ -76,6 +77,11 @@ def get_chars_all_armour_names(conn, cursor, limit = 20):
                             (SELECT name FROM Head WHERE id = Robe) as nRobe, \
                             (SELECT name FROM Head WHERE id = Accessory) as nAccessory\
                             FROM chars ORDER BY name LIMIT  ?", [limit])
+    """
+
+    result = cursor.execute("SELECT chars.name, Head.name as Head,  Bracelet.name as Bracelet, Armour.name as Armour, Shoes.name as Shoes,  Robe.name as Robe, Accessory.name as Accessory \
+                            FROM chars JOIN Head JOIN Bracelet JOIN Armour JOIN Shoes JOIN Robe JOIN Accessory WHERE \
+                            Head.id = chars.Head AND Bracelet.id = chars.Bracelet AND Armour.id = chars.Armour AND Shoes.id = chars.Shoes AND Robe.id = chars.Robe AND Accessory.id = chars.Accessory")
 
     write_data_to_json([dict(r) for r in result.fetchall()], json_out.format("q6"))
 

@@ -39,6 +39,11 @@ def get_chars_with_max_atk_mace(conn, cursor):
                              (SELECT Atk FROM Mace WHERE id = weapon_id) AS wepon_atk, \
                              Atk + (SELECT Atk FROM Mace WHERE id = weapon_id) as total_atk \
                              FROM chars WHERE weapon_name = 'Mace' ORDER BY total_atk DESC")
+    
+
+    result = cursor.execute("SELECT chars.name, chars.weapon_name, chars.weapon_id, chars.Atk, Mace.Atk as Weapon_atk,  \
+                             chars.Atk + Mace.Atk as total_atk \
+                             FROM chars JOIN Mace WHERE weapon_name = 'Mace' AND chars.weapon_id = Mace.id  ORDER BY total_atk DESC")
           
     write_data_to_json([dict(r) for r in result.fetchall()], json_out.format("q4"))
 

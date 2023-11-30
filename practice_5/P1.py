@@ -1,7 +1,19 @@
+import os
+import json
+
 from pymongo import MongoClient
 
 
-database = "test_database"
+
+maindir = "tests"
+variant = "var_40"
+filename = "task_1_item.json"
+
+datafile = os.path.join(maindir, variant, filename)
+
+database = "var40_base1"
+
+
 
 def connect(dbname):
     client = MongoClient()
@@ -57,13 +69,17 @@ def insert_data(connection, data):
 
 # t2
 
+def parse_data(filename):
+    with open(filename, mode='r') as f:
+        data = json.load(f)
+
+    return data
 
 
 if __name__ == "__main__":
+
+    data = parse_data(datafile)
+
     connection = connect(database)
+    insert_data(connection, data)
 
-    data = {"a" : 1, "b" : 2}
-    insert_data(connection, [data])
-
-
-    print('Done')

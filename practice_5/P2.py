@@ -105,7 +105,7 @@ def dump_by(collection, column, column_calc, outfile):
             "$group" : {
                 "_id" : f"${column}",
                 "max" : {"$max" : f"${column_calc}"},
-                "min" : {"$min" : f"{column_calc}"},
+                "min" : {"$min" : f"${column_calc}"},
                 "avg" : {"$avg" : f"${column_calc}"},
             }
         }
@@ -113,6 +113,48 @@ def dump_by(collection, column, column_calc, outfile):
 
     data = collection.aggregate(a)
     write_data_to_json([*data], json_out.format(outfile))  
+
+def dump_max_salary_by_min_age(collection, outfile):
+    # pipeline
+    a = [
+        {
+            "$group" : {
+                "_id" : "$age",
+                "max_salary" : {"$max" : "$salary"}
+            }
+        },
+        {
+            "$group" : {
+                "_id" : "result",
+                "min_age" : {"$min" : "$_id"},
+                "max_salary" : {"$max" : "$max_salary"}
+            }
+        }
+    ]
+
+    data = collection.aggregate(a)
+    write_data_to_json([*data], json_out.format(outfile))
+
+
+def dump_max_salary_by_age(collection, match_age, outfile):
+    # pipeline
+    a = [
+        {
+            "$match" : {
+                "age" : match_age,
+            }
+        },
+        {
+            "$group" : {
+                "_id" : "result",
+                "min_age" : {"$min" : "$age"},
+                "max_salary" : {"$max" : "$salary"}
+            }
+        }
+    ]
+
+    data = collection.aggregate(a)
+    write_data_to_json([*data], json_out.format(outfile))
 
 if __name__ == "__main__":
 
@@ -125,12 +167,16 @@ if __name__ == "__main__":
 
     dump_min_max_avg(collection)
     dump_count_by_job(collection)
-    dump_salary_by(collection, "city", "ex_3")
-    dump_salary_by(collection, "job", "ex_4")
-    dump_age_by(collection, "city", "ex_5")
-    dump_age_by(collection, "job", "ex_6")
 
-    #dump_by(collection, "city", "salary", "ex_3")
-    #dump_by(collection, "job", "salary", "ex_4")
-    #dump_by(collection, "city", "age", "ex_5")
-    #dump_by(collection, "job", "age", "ex_6")
+    #dump_salary_by(collection, "city", "ex_3")
+    #dump_salary_by(collection, "job", "ex_4")
+    #dump_age_by(collection, "city", "ex_5")
+    #dump_age_by(collection, "job", "ex_6")
+
+    dump_by(collection, "city", "salary", "ex_3")
+    dump_by(collection, "job", "salary", "ex_4")
+    dump_by(collection, "city", "age", "ex_5")
+    dump_by(collection, "job", "age", "ex_6")
+
+    #dump_max_salary_by_min_age(collection, "ex_7")
+    dump_max_salary_by_age(collection, 18, "ex_7")

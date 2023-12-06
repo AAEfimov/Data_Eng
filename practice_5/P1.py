@@ -12,9 +12,6 @@ database = "var40_base1"
 
 json_out = "tests/out1/{}.json"
 
-def insert_data(connection, data):
-    res = connection.insert_many(data)
-
 def sort_limit_data_by_salary_dump(collection, vlimit = 10, up_to_down = -1):
     data = collection.find({}, limit=vlimit).sort({'salary' : up_to_down})
     write_data_to_json([*data], json_out.format("ex_1"))
@@ -54,6 +51,12 @@ def parse_data(filename):
     with open(filename, mode='r') as f:
         data = json.load(f)
 
+    for d in data:
+        d['salary'] = int(d['salary'])
+        d['year'] = int(d['year'])
+        d['id'] = int(d['id'])
+        d['age'] = int(d['age'])
+
     return data
 
 if __name__ == "__main__":
@@ -68,7 +71,7 @@ if __name__ == "__main__":
             db.drop_collection(n)
 
     data = parse_data(datafile)
-    insert_data(connection, data)
+    insert_data_mongo(connection, data)
 
     sort_limit_data_by_salary_dump(connection)
     sort_and_filter(connection)

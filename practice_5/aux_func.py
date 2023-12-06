@@ -81,3 +81,6 @@ def connect_mongo(dbname):
     db = client[dbname]
 
     return db
+
+def insert_data_mongo(connection, data):
+    res = connection.insert_many(data)

@@ -1,9 +1,6 @@
 import os
 import json
 from aux_func import *
-from pymongo import MongoClient
-
-
 
 maindir = "tests"
 variant = "var_40"
@@ -15,15 +12,8 @@ database = "var40_base1"
 
 json_out = "tests/out1/{}.json"
 
-def connect(dbname):
-    client = MongoClient()
-    db = client[dbname]
-
-    return db
-
 def insert_data(connection, data):
     res = connection.insert_many(data)
-
 
 def sort_limit_data_by_salary_dump(collection, vlimit = 10, up_to_down = -1):
     data = collection.find({}, limit=vlimit).sort({'salary' : up_to_down})
@@ -66,16 +56,14 @@ def parse_data(filename):
 
     return data
 
-
 if __name__ == "__main__":
 
-    db = connect(database)
+    db = connect_mongo(database)
     connection = db.person
 
     col_names = db.list_collection_names()
 
     if col_names:
-        print("Drop")
         for n in col_names:
             db.drop_collection(n)
 
@@ -86,8 +74,4 @@ if __name__ == "__main__":
     sort_and_filter(connection)
     sort_and_filter_hard(connection, "Валенсия", ["Программист", "Повар", "Врач"])
     count_by_filter(connection)
-
-
-
-
 

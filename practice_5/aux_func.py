@@ -4,7 +4,7 @@ from sqlite3 import Error
 import json
 import os
 from zipfile import ZipFile
-
+from pymongo import MongoClient
 
 def create_connection(db_file):
     connection = sqlite3.connect(db_file)
@@ -75,3 +75,9 @@ def get_next_file_from_zip(zip_arch, fp):
             ext_filename = os.path.join(ext_dir, f.filename)
 
             yield ext_filename
+
+def connect_mongo(dbname):
+    client = MongoClient()
+    db = client[dbname]
+
+    return db

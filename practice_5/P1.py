@@ -28,6 +28,7 @@ def sort_and_filter_hard(collection, city, job_list, vlimit = 10, up_to_down = 1
 
 def count_by_filter(collection):
     data = collection.find({"age" : {"$gt" : 25, "$lt" : 35}, 
+                                        # "year" : {$gte : 2019, "$lte" : 2022},
                                         "year" : {"$in" : [2019, 2020, 2021, 2022, 2001]},
                                         "$or" : [
                                                     {"salary" : {"$gt" : 50000, "$lte" : 75000}}, 

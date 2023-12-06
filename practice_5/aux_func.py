@@ -84,3 +84,12 @@ def connect_mongo(dbname):
 
 def insert_data_mongo(connection, data):
     res = connection.insert_many(data)
+
+
+def round_field_mongo(collection, field):
+    data = collection.find()
+
+    for p in data:
+        p[field] = round(p[field], 2)
+
+    collection.save(data)

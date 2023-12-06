@@ -1,6 +1,6 @@
 import os
 import json
-
+from aux_func import *
 from pymongo import MongoClient
 
 
@@ -13,61 +13,52 @@ datafile = os.path.join(maindir, variant, filename)
 
 database = "var40_base1"
 
-
+json_out = "tests/out1/{}.json"
 
 def connect(dbname):
     client = MongoClient()
     db = client[dbname]
 
-    return db.person
+    return db
 
 def insert_data(connection, data):
     res = connection.insert_many(data)
 
-# 1 Request
-# 1 - down to up sort
-# -2 - up to down sort
-# for collection in collection.find({}, limit=10).sort('salary' : -1)
 
-# 2 Request
-# Filter
-# Конкретное значение
-# for collection in collection.find({'age' : 18}, limit = 15).sort('salary' : -1)
-# Сложное выражение - {"$lt" : 30}     age < 30
-# for pers in collection.find({'age' : {"$lt" : 30}}, limit = 15).sort('salary' : -1)
-
-# 3 Request
-# Город и 3 профессии {"$in", ["PROF_A", "PROF_B", "PROF_C"]}
-
-# for pers in collection.find({'city' : "CITY_NAME", "job" : {"$in" : ["PROF_A", "PROF_B", "PROF_C"]}}, limit = 10).sort('age' : 1)
-
-# 4 Request
-# collection.count_documents({"age" : {"$gt" : 25, "$lt" : 35}, 
-#                             "years" : {"$in" : [2019, 2020, 2021, 2022]}, 
-#                             "$or" : [
-#                                       {"salary" : {"$gt" : 50000, "$lte" : 75000}}, 
-#                                       { "salary" : {"$gt" : 125000, "$lt" : 150000}}
-#                                     ]
-#                           })
-
-# EX_2 
+def sort_limit_data_by_salary_dump(collection, vlimit = 10, up_to_down = -1):
+    data = collection.find({}, limit=vlimit).sort({'salary' : up_to_down})
+    write_data_to_json([*data], json_out.format("ex_1"))
 
 
-# t1
-# get stat by salary analog SQL group BY
-# a = [
-#       {"$group" : 
-#                   {
-#                       "_id" : "result", 
-#                       "max" : {"$max" : "$salary"},
-#                       "min" : {"$min" : "$salary"}, 
-#                       "avg" : {"$avg" : "$salary"}
-#                   }
-#        }
-#     ]
-# for collect in collection.aggregate(q)
+def sort_and_filter(collection, vlimit = 15, up_to_down = -1):
+    data = collection.find({'age' : {"$lt" : 30}}, limit = vlimit).sort({'salary' : up_to_down})
+    write_data_to_json([*data], json_out.format("ex_2"))
 
-# t2
+
+def sort_and_filter_hard(collection, city, job_list, vlimit = 10, up_to_down = 1):
+    data = collection.find({'city' : city, "job" : {"$in" : job_list}}, limit = 10).sort({'age' : up_to_down})
+    write_data_to_json([*data], json_out.format("ex_3"))
+
+def count_by_filter(collection):
+    data = collection.find({"age" : {"$gt" : 25, "$lt" : 35}, 
+                                        "year" : {"$in" : [2019, 2020, 2021, 2022, 2001]},
+                                        "$or" : [
+                                                    {"salary" : {"$gt" : 50000, "$lte" : 75000}}, 
+                                                    { "salary" : {"$gt" : 125000, "$lt" : 150000}}
+                                                ]
+                                    }).sort({'age' : 1})
+    
+    write_data_to_json([*data], json_out.format("ex_4"))
+
+    cnt = collection.count_documents({"age" : {"$gt" : 25, "$lt" : 35}, 
+                                        "year" : {"$in" : [2019, 2020, 2021, 2022]}, 
+                                        "$or" : [
+                                                    {"salary" : {"$gt" : 50000, "$lte" : 75000}}, 
+                                                    { "salary" : {"$gt" : 125000, "$lt" : 150000}}
+                                                ]
+                                    })
+
+    write_data_to_json(cnt, json_out.format("ex_4_cnt"))
 
 def parse_data(filename):
     with open(filename, mode='r') as f:
@@ -78,8 +69,25 @@ def parse_data(filename):
 
 if __name__ == "__main__":
 
-    data = parse_data(datafile)
+    db = connect(database)
+    connection = db.person
 
-    connection = connect(database)
+    col_names = db.list_collection_names()
+
+    if col_names:
+        print("Drop")
+        for n in col_names:
+            db.drop_collection(n)
+
+    data = parse_data(datafile)
     insert_data(connection, data)
+
+    sort_limit_data_by_salary_dump(connection)
+    sort_and_filter(connection)
+    sort_and_filter_hard(connection, "Валенсия", ["Программист", "Повар", "Врач"])
+    count_by_filter(connection)
+
+
+
+
 

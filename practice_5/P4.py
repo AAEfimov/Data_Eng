@@ -52,7 +52,15 @@ if __name__ == "__main__":
     # data2 = parse_data_json(datafile2)
 
     # for d in (data1 + data2):
-    #     d['Vehicle Year'] = int(d['Vehicle Year'])
+
+    #     vy = int(d['Vehicle Year'])
+    #     if vy > 2023 :
+    #         vy = 2023
+    #     elif vy == 0:
+    #         vy = 2000
+
+    #     d['Vehicle Year'] = vy
+        
     #     l = d['Crash Date/Time'].split()
     #     # Date m/d/y
     #     l_0 = l[0].split('/')
@@ -73,7 +81,7 @@ if __name__ == "__main__":
     # insert_data_mongo(collection, data1)
     # insert_data_mongo(collection, data2)
 
-
+    # ===== 1 ======
     sort_limit_data_by_Vehicle_Year(collection, 2015)
     get_Driver_At_Fault(collection, 'No')
 
@@ -83,3 +91,23 @@ if __name__ == "__main__":
     ford_winter_crash_by_filter(collection)
     toyota_count_by_filter(collection)
 
+    # ===== 2 ======
+
+    dump_min_max_avg_by_Crash_Year(collection, "p2_ex_1")
+    dump_count_by_speed_limit(collection, "p2_ex_2")
+    
+    # Какие модели попадают в ДТП в среднем в каких месяцах
+    dump_month_by(collection, 'Vehicle Make', "p2_ex_3")
+    # Какие модели попадают в ДТП в среднем по году авпуска
+    dump_Vehicle_Make_by(collection, 'Vehicle Year', "p2_ex_4")
+
+    # В каком месяце случаются аварии при минимальном скоростном лимите
+    dump_min_speed_limit_and_max_month(collection, "p2_ex_5")
+
+    # ===== 3 ======
+
+    drop_by_make(collection)
+    decriace_year_by_one(collection)
+    increace_speed_limit_by_make(collection, ['HONDA', 'FORD'])
+    increace_time_for_nin_surface_condition(collection, ['DRY'])
+    increace_Vehicle_Year_by(collection, ["South", "East"], ["GMC" "SUBA" "FORD"], [2016, 2017, 2018])

@@ -1,4 +1,3 @@
-
 from aux_func import *
 
 json_out = "tests/out4/{}.json"

@@ -266,17 +266,13 @@ def dump_last_ex(ollection, outfile):
         {
             "$match" : 
                 { 
-                    "city" : {"$in" : ["Москва", "Санкт-Петербург", "Вильнюс", "Баку"] },
-                    "job"  : {"$in" : ["Программист", "Повар", "Врач"]},
-                    "$or"  : [
-                        {"age" : {"$gt" : 18, "$lt" : 25}},
-                        {"age" : {"$gt" : 50, "$lt" : 65}}
-                        ]
+                    "job"  : {"$in" : ["Программист", "IT-специалист"]},
+                    "salary" : {"$gt" : 100_000, "$lt" : 160_000},
                 }
         },
         {
             "$group" : {
-                "_id" : "result",
+                "_id" : "$city",
                 "max" : {"$max" : "$salary"},
                 "min" : {"$min" : "$salary"},
                 "avg" : {"$avg" : "$salary"},  
@@ -284,7 +280,7 @@ def dump_last_ex(ollection, outfile):
         },
         {
             "$sort" : {
-                "avg" : -1
+                "max" : 1
             }
         }
     ]
@@ -322,4 +318,7 @@ if __name__ == "__main__":
     dump_params_by_city_by_salary(collection, "ex_9")
     dump_params_by_big_q(collection, "ex_10")
 
-    dump_last_ex(collection, "ex_10")
+
+    # Отсортировать по возрастанию максимальной зарплаты список городов
+    # где "Программист" и "IT-специалист" получают от 100_000 до 150_000
+    dump_last_ex(collection, "ex_11")

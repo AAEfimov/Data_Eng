@@ -164,6 +164,26 @@ def dump_max_salary_by_age(collection, match_age, outfile):
     data = collection.aggregate(a)
     write_data_to_json([*data], json_out.format(outfile))
 
+def dump_min_salary_by_age(collection, match_age, outfile):
+    # pipeline
+    a = [
+        {
+            "$match" : {
+                "age" : match_age,
+            }
+        },
+        {
+            "$group" : {
+                "_id" : "result",
+                "min_age" : {"$max" : "$age"},
+                "max_salary" : {"$min" : "$salary"}
+            }
+        }
+    ]
+
+    data = collection.aggregate(a)
+    write_data_to_json([*data], json_out.format(outfile))
+
 if __name__ == "__main__":
 
     db = connect_mongo(database)
@@ -188,3 +208,4 @@ if __name__ == "__main__":
 
     #dump_max_salary_by_min_age(collection, "ex_7")
     dump_max_salary_by_age(collection, 18, "ex_7")
+    dump_min_salary_by_age(collection, 65, "ex_8")

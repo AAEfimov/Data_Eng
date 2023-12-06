@@ -164,6 +164,31 @@ def dump_max_salary_by_age(collection, match_age, outfile):
     data = collection.aggregate(a)
     write_data_to_json([*data], json_out.format(outfile))
 
+def dump_min_salary_by_max_age(collection, outfile):
+    # pipeline
+    a = [
+        {
+            "$group" : {
+                "_id" : "$age",
+                "min_salary" : {"$min" : "$salary"}
+            }
+        },
+        {
+            "$group" : {
+                "_id" : "result",
+                "max_age" : {"$max" : "$_id"},
+                "min_salary" : {"$min" : "$min_salary"}
+            }
+        }
+    ]
+
+    # Запрос с ошибкой. он выводит минимальный возраст и максимальную зарплату
+    # Выводимые данные принадлежат разным записям!
+
+    data = collection.aggregate(a)
+    #pp.pprint([*data])
+    #write_data_to_json([*data], json_out.format(outfile))
+
 def dump_min_salary_by_age(collection, match_age, outfile):
     # pipeline
     a = [
@@ -181,6 +206,30 @@ def dump_min_salary_by_age(collection, match_age, outfile):
         }
     ]
 
+    data = collection.aggregate(a)
+    write_data_to_json([*data], json_out.format(outfile))
+
+def dump_params_by_city_by_salary(collection, outfile):
+    a = [
+        {
+            "$match" : 
+                { "salary" : {"$gt" : 50000 }}
+        },
+        {
+            "$group" : {
+                "_id" : "$city",
+                "max" : {"$max" : "$age"},
+                "min" : {"$min" : "$age"},
+                "avg" : {"$avg" : "$age"},  
+            }
+        },
+        {
+            "$sort" : {
+                "avg" : -1
+            }
+        }
+    ]
+        
     data = collection.aggregate(a)
     write_data_to_json([*data], json_out.format(outfile))
 
@@ -208,4 +257,7 @@ if __name__ == "__main__":
 
     #dump_max_salary_by_min_age(collection, "ex_7")
     dump_max_salary_by_age(collection, 18, "ex_7")
+    #dump_min_salary_by_max_age(collection, "ex_8")
     dump_min_salary_by_age(collection, 65, "ex_8")
+
+    dump_params_by_city_by_salary(collection, "ex_9")

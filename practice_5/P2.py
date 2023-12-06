@@ -1,5 +1,6 @@
 import os
 import json
+import pprint
 from aux_func import *
 
 maindir = "tests"
@@ -12,6 +13,9 @@ datafile = os.path.join(maindir, variant, filename)
 database = "var40_base1"
 
 json_out = "tests/out2/{}.json"
+
+
+pp = pprint.PrettyPrinter()
 
 def parse_data(filename):
     with open(filename, mode='r') as f:
@@ -35,7 +39,7 @@ def parse_data(filename):
 
     return data
 
-def dump_min_max_avg(collection):
+def dump_min_max_avg(collection, outfile):
     a = [
         {
             "$group" : {
@@ -48,9 +52,9 @@ def dump_min_max_avg(collection):
     ]
 
     data = collection.aggregate(a)
-    write_data_to_json([*data], json_out.format("ex_1"))
+    write_data_to_json([*data], json_out.format(outfile))
 
-def dump_count_by_job(collection):
+def dump_count_by_job(collection, outfile):
     # pipeline
     a = [
         {
@@ -67,7 +71,7 @@ def dump_count_by_job(collection):
     ]
 
     data = collection.aggregate(a)
-    write_data_to_json([*data], json_out.format("ex_2"))
+    write_data_to_json([*data], json_out.format(outfile))
    
 def dump_salary_by(collection, column, outfile):
     a = [
@@ -132,8 +136,12 @@ def dump_max_salary_by_min_age(collection, outfile):
         }
     ]
 
+    # Запрос с ошибкой. он выводит минимальный возраст и максимальную зарплату
+    # Выводимые данные принадлежат разным записям!
+
     data = collection.aggregate(a)
-    write_data_to_json([*data], json_out.format(outfile))
+    #pp.pprint([*data])
+    #write_data_to_json([*data], json_out.format(outfile))
 
 
 def dump_max_salary_by_age(collection, match_age, outfile):
@@ -165,8 +173,8 @@ if __name__ == "__main__":
     # data = parse_data(datafile)
     # insert_data_mongo(connection, data)
 
-    dump_min_max_avg(collection)
-    dump_count_by_job(collection)
+    dump_min_max_avg(collection, "ex_1")
+    dump_count_by_job(collection, "ex_2")
 
     #dump_salary_by(collection, "city", "ex_3")
     #dump_salary_by(collection, "job", "ex_4")

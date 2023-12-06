@@ -295,7 +295,7 @@ if __name__ == "__main__":
 
     # call once!
     # data = parse_data(datafile)
-    # insert_data_mongo(connection, data)
+    # insert_data_mongo(collection, data)
 
     dump_min_max_avg(collection, "ex_1")
     dump_count_by_job(collection, "ex_2")

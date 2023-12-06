@@ -233,6 +233,65 @@ def dump_params_by_city_by_salary(collection, outfile):
     data = collection.aggregate(a)
     write_data_to_json([*data], json_out.format(outfile))
 
+
+def dump_params_by_big_q(collection, outfile):
+    a = [
+        {
+            "$match" : 
+                { 
+                    "city" : {"$in" : ["Москва", "Санкт-Петербург", "Вильнюс", "Баку"] },
+                    "job"  : {"$in" : ["Программист", "Повар", "Врач"]},
+                    "$or"  : [
+                        {"age" : {"$gt" : 18, "$lt" : 25}},
+                        {"age" : {"$gt" : 50, "$lt" : 65}}
+                        ]
+                }
+        },
+        {
+            "$group" : {
+                "_id" : "result",
+                "max" : {"$max" : "$salary"},
+                "min" : {"$min" : "$salary"},
+                "avg" : {"$avg" : "$salary"},  
+            }
+        },
+    ]
+        
+    data = collection.aggregate(a)
+    write_data_to_json([*data], json_out.format(outfile))
+
+def dump_last_ex(ollection, outfile):
+
+    a = [
+        {
+            "$match" : 
+                { 
+                    "city" : {"$in" : ["Москва", "Санкт-Петербург", "Вильнюс", "Баку"] },
+                    "job"  : {"$in" : ["Программист", "Повар", "Врач"]},
+                    "$or"  : [
+                        {"age" : {"$gt" : 18, "$lt" : 25}},
+                        {"age" : {"$gt" : 50, "$lt" : 65}}
+                        ]
+                }
+        },
+        {
+            "$group" : {
+                "_id" : "result",
+                "max" : {"$max" : "$salary"},
+                "min" : {"$min" : "$salary"},
+                "avg" : {"$avg" : "$salary"},  
+            }
+        },
+        {
+            "$sort" : {
+                "avg" : -1
+            }
+        }
+    ]
+
+    data = collection.aggregate(a)
+    write_data_to_json([*data], json_out.format(outfile))
+
 if __name__ == "__main__":
 
     db = connect_mongo(database)
@@ -261,3 +320,6 @@ if __name__ == "__main__":
     dump_min_salary_by_age(collection, 65, "ex_8")
 
     dump_params_by_city_by_salary(collection, "ex_9")
+    dump_params_by_big_q(collection, "ex_10")
+
+    dump_last_ex(collection, "ex_10")

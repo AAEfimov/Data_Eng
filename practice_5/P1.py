@@ -49,7 +49,7 @@ def count_by_filter(collection):
     write_data_to_json(cnt, json_out.format("ex_4_cnt"))
 
 def parse_data(filename):
-    with open(filename, mode='r') as f:
+    with open(filename, mode='r', encoding="utf-8") as f:
         data = json.load(f)
 
     for d in data:

@@ -23,7 +23,7 @@ json_out = "tests/out4/{}.json"
 pp = pprint.PrettyPrinter()
 
 def parse_data_csv(datafile):
-    with open(datafile, mode='r') as csv_f:
+    with open(datafile, mode='r', encoding="utf-8") as csv_f:
         csvr = csv.DictReader(csv_f, delimiter=',')
         data = []
         for row in csvr:
@@ -33,7 +33,7 @@ def parse_data_csv(datafile):
 
 
 def parse_data_json(datafile):
-    with open(datafile, mode='r') as f:
+    with open(datafile, mode='r', encoding="utf-8") as f:
         data = json.load(f)
     return data
 

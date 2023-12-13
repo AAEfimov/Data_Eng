@@ -41,7 +41,7 @@ def write_data_to_json(data, filename):
     if not os.path.exists(ext_dir):
         os.mkdir(ext_dir)
 
-    with open(filename, mode='w') as f_json:
+    with open(filename, mode='w', encoding="utf-8") as f_json:
         json.dump(data, f_json, default=str, ensure_ascii=False)
 
 def print_sum_min_max(conn, cursor, table_name, fild, json_filename):

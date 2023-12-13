@@ -18,7 +18,7 @@ json_out = "tests/out2/{}.json"
 pp = pprint.PrettyPrinter()
 
 def parse_data(filename):
-    with open(filename, mode='r') as f:
+    with open(filename, mode='r', encoding="utf-8") as f:
         lines = f.readlines()
 
     data = []
@@ -118,26 +118,20 @@ def dump_by(collection, column, column_calc, outfile):
     data = collection.aggregate(a)
     write_data_to_json([*data], json_out.format(outfile))  
 
+# FIXED! Sorted by 2 keys
 def dump_max_salary_by_min_age(collection, outfile):
     # pipeline
     a = [
         {
-            "$group" : {
-                "_id" : "$age",
-                "max_salary" : {"$max" : "$salary"}
+            "$sort" : {
+                "age" : 1,
+                "salary": -1
             }
         },
         {
-            "$group" : {
-                "_id" : "result",
-                "min_age" : {"$min" : "$_id"},
-                "max_salary" : {"$max" : "$max_salary"}
-            }
+            "limit" : 1
         }
     ]
-
-    # Запрос с ошибкой. он выводит минимальный возраст и максимальную зарплату
-    # Выводимые данные принадлежат разным записям!
 
     data = collection.aggregate(a)
     #pp.pprint([*data])
@@ -164,26 +158,20 @@ def dump_max_salary_by_age(collection, match_age, outfile):
     data = collection.aggregate(a)
     write_data_to_json([*data], json_out.format(outfile))
 
+# FIXED! Sorted by 2 keys
 def dump_min_salary_by_max_age(collection, outfile):
     # pipeline
     a = [
         {
-            "$group" : {
-                "_id" : "$age",
-                "min_salary" : {"$min" : "$salary"}
+            "$sort" : {
+                "age" : -1,
+                "salary": 1
             }
         },
         {
-            "$group" : {
-                "_id" : "result",
-                "max_age" : {"$max" : "$_id"},
-                "min_salary" : {"$min" : "$min_salary"}
-            }
+            "limit" : 1
         }
     ]
-
-    # Запрос с ошибкой. он выводит минимальный возраст и максимальную зарплату
-    # Выводимые данные принадлежат разным записям!
 
     data = collection.aggregate(a)
     #pp.pprint([*data])

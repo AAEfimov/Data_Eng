@@ -1,0 +1,1 @@
+{"df_int_size": 7.87, "df_int_downcast_size": 1.48, "type_conversion": {"before": {"date": "int64", "number_of_game": "int64", "v_game_number": "int64", "h_game_number": "int64", "v_score": "int64", "h_score": "int64"}, "after": {"date": "uint32", "number_of_game": "uint8", "v_game_number": "uint8", "h_game_number": "uint8", "v_score": "uint8", "h_score": "uint8"}}}

@@ -25,13 +25,19 @@ selected_columns = ['YEAR', 'MONTH', 'DAY', 'ORIGIN_AIRPORT', 'DESTINATION_AIRPO
 def get_stat_and_optimize(datafile):
     df = pd.read_csv(datafile)
 
-    evaluate_memory(df, datafile, outfile)
+    md = evaluate_memory(df, datafile)
+    write_data_to_json(md, outfile.format(f"memusage_noopt"))
     
     df_optimized = df.copy()
 
-    df_obj = convert_object_datatypes(df, outfile)
-    df_int = int_downcast(df, outfile)
-    df_float = float_downcast(df, outfile)
+    df_obj, conv_d_obj = convert_object_datatypes(df)
+    write_data_to_json(conv_d_obj, outfile.format("objects_memopt"))
+
+    df_int, conv_d_int = int_downcast(df)
+    write_data_to_json(conv_d_int, outfile.format("int_downcast"))
+
+    df_float, conv_d_float = float_downcast(df)
+    write_data_to_json(conv_d_float, outfile.format("float_downcast"))
 
     df_optimized[df_int.columns] = df_int
     df_optimized[df_float.columns] = df_float
@@ -40,7 +46,8 @@ def get_stat_and_optimize(datafile):
     print(mem_usage(df))
     print(mem_usage(df_optimized))
 
-    evaluate_memory(df_optimized, datafile, outfile, 'optimized')
+    md_opt = evaluate_memory(df_optimized, datafile)
+    write_data_to_json(md_opt, outfile.format(f"memusage_optimized"))
 
     # select columns to load
     

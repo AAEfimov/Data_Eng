@@ -1,0 +1,1 @@
+{"spkid": "uint32", "full_name": "object", "diameter": "float32", "albedo": "float32", "epoch": "float32", "equinox": "category", "tp": "float64", "per": "float64", "moid": "float32", "class": "category", "rms": "float32"}

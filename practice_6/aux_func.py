@@ -119,7 +119,7 @@ def mem_usage2(df):
     return "{:02.2f} MB".format(umb)
     
 
-def evaluate_memory(df, file, outfile, file_suffix = 'noopt'):
+def evaluate_memory(df, file, accum = None):
 
     d = {}
     fsz = os.path.getsize(file)
@@ -161,9 +161,10 @@ def evaluate_memory(df, file, outfile, file_suffix = 'noopt'):
     d["types_stat"] = types_stats
     d["column_stats"] = column_stats
 
-    write_data_to_json(d, outfile.format(f"memusage_{file_suffix}"))
+    return d
+    
 
-def convert_object_datatypes(df, outfile):
+def convert_object_datatypes(df):
 
     # INFO
     # category_example
@@ -197,9 +198,7 @@ def convert_object_datatypes(df, outfile):
     d['objects_size'] = round(mem_usage(df_obj), 2)
     d['objects_astype'] = round(mem_usage(conv_df), 2)
 
-    write_data_to_json(d, outfile.format("objects_memopt"))
-
-    return conv_df
+    return conv_df, d
 
 
 def type_size():
@@ -215,7 +214,7 @@ def type_size():
 ‘float’: smallest float dtype (min.: np.float32)
 """       
 
-def int_downcast(df, outfile):
+def int_downcast(df):
 
 
     df_int = df.select_dtypes(include=['int'])
@@ -233,12 +232,10 @@ def int_downcast(df, outfile):
     d['df_int_downcast_size'] = round(mem_usage(df_int_downcast), 2)
     d['type_conversion'] = compare_ints.to_dict()
 
-    write_data_to_json(d, outfile.format("int_downcast"))
-
-    return df_int_downcast
+    return df_int_downcast, d
 
 
-def float_downcast(df, outfile):
+def float_downcast(df):
     df_float = df.select_dtypes(include=['float'])
     df_float_downcast = df_float.apply(pd.to_numeric, downcast='float')
     print(mem_usage(df_float))
@@ -253,9 +250,7 @@ def float_downcast(df, outfile):
     d['df_float_downcast_size'] = round(mem_usage(df_float_downcast), 2)
     d['type_conversion'] = compare_floats.to_dict()
 
-    write_data_to_json(d, outfile.format("float_downcast"))
-
-    return df_float_downcast
+    return df_float_downcast, d
 
 # experemental
 def df_type_downcast(df, df_type_from, df_type_to, outfile):

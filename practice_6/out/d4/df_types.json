@@ -1,0 +1,1 @@
+{"vin": "object", "stockNum": "category", "brandName": "category", "modelName": "category", "vf_AdaptiveDrivingBeam": "category", "vf_AirBagLocCurtain": "category", "vf_BatteryKWh": "float32", "vf_Doors": "float32", "vf_ParkAssist": "category", "vf_Seats": "float32"}

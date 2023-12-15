@@ -1,0 +1,1 @@
+{"df_int_size": 14.63, "df_int_downcast_size": 5.48, "type_conversion": {"before": {"spkid": "int64", "epoch_mjd": "int64"}, "after": {"spkid": "uint32", "epoch_mjd": "uint16"}}}

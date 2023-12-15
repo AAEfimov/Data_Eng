@@ -1,4 +1,3 @@
-
 import os
 import json
 import pandas as pd
@@ -7,24 +6,24 @@ import seaborn as sns
 import matplotlib.pyplot as plt 
 from aux_func import *
 
-pd.set_option("display.max_rows", 20, "display.max_columns", 60)
+pd.set_option("display.max_rows", 20, "display.max_columns", 200)
 
-out_dir = "d1"
-datafile = "data/game_logs.csv"
+out_dir = "d5"
+datafile = "data/asteroid.zip"
 
 datafiles_out = "data/{}"
 
 outfile = "out/" + out_dir + "/{}.json"
 
 types_file = outfile.format("df_types")
-opt_datafile_name = datafiles_out.format("game_dataset_optcols.csv")
-chunk_filename = "game_dataset_df_chunk.csv"
+opt_datafile_name = datafiles_out.format("asteroid_optcols.csv")
+chunk_filename = "asteroid_df_chunk.csv"
 
-selected_columns = ['date', 'h_game_number', 'v_score', 'h_score', 'v_at_bats', 'v_hits', 
-           'h_homeruns', 'h_passed_balls', 'saving_pitcher_id', 'h_manager_name']
+selected_columns = ['spkid', 'full_name', 'diameter', 'albedo', 'epoch', 'equinox', 
+           'tp', 'per', 'moid', 'class', 'rms']
 
-def get_stat_and_optimize(datafile):
-    df = pd.read_csv(datafile)
+def get_stat_and_optimize(datafile, compr='infer', nr=None):
+    df = pd.read_csv(datafile, compression=compr, nrows=nr)
 
     md = evaluate_memory(df, datafile)
     write_data_to_json(md, outfile.format(f"memusage_noopt"))
@@ -78,18 +77,11 @@ if __name__ == "__main__":
     ## PLOTTING
 
     # Read types
-    need_dtypes = read_pandas_types(types_file)
+    # need_dtypes = read_pandas_types(types_file)
 
-    print(need_dtypes)
-    # , parse_dates=['date'], infer_datetime_format=True
+    # print(need_dtypes)
+    # # , parse_dates=['date'], infer_datetime_format=True
 
-    df_plot = pd.read_csv(opt_datafile_name, usecols = lambda x : x in need_dtypes.keys(), dtype = need_dtypes)
+    # df_plot = pd.read_csv(opt_datafile_name, usecols = lambda x : x in need_dtypes.keys(), dtype = need_dtypes)
 
-    df_plot.info(memory_usage='deep')
-
-
-
-    
-
-
-
+    # df_plot.info(memory_usage='deep')

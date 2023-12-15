@@ -117,24 +117,48 @@ def mem_usage2(df):
 
     umb = ub / 1024 ** 2
     return "{:02.2f} MB".format(umb)
+
+def get_dict_by_name(lst, key):
+    for d in lst:
+        if d['column_name'] == key:
+            return d
     
+    return {}
 
 def evaluate_memory(df, file, accum = None):
 
     d = {}
     fsz = os.path.getsize(file)
     mem_stat = df.memory_usage(deep = True)
+
+    if not accum:
+        accum = {}
+
+    acc_col_stat = accum.get("column_stats", None) 
+    if not acc_col_stat:
+        acc_col_stat = []
+
+    acc_type_stat = accum.get("types_stat", None)
+    if not acc_type_stat:
+        acc_type_stat = []
+    
     total_mem_usage = mem_stat.sum()
 
     d["file_size"] = int(fsz) // 1024
-    d["in_memory_size"] = int(total_mem_usage) // 1024
+
+    # print(f"total chunk: {total_mem_usage}, accum: {accum.get('in_memory_size', 0)}")
+
+    d["in_memory_size"] = int(total_mem_usage ) // 1024 + accum.get("in_memory_size", 0)
 
     column_stats = []
+
     for key in df.dtypes.keys():
+        acc_col_stat_d = get_dict_by_name(acc_col_stat, key)
+        total_mem_stat = int(mem_stat[key]) + acc_col_stat_d.get("memory_abs", 0)
         column_stats.append({
             "column_name" : key,
-            "memory_abs" : int(mem_stat[key]) // 1024,
-            "memory_percent" : round((mem_stat[key] / total_mem_usage) * 100, 4),
+            "memory_abs" : int(total_mem_stat) // 1024,
+            "memory_percent" : round((total_mem_stat / (d["in_memory_size"] * 1024)) * 100, 4),
             "dtype" : df.dtypes[key]
 
         })
@@ -147,15 +171,23 @@ def evaluate_memory(df, file, accum = None):
     # size of dataset
     # print(df.shape)
 
-    d["shape"] = df.shape
+    d["shape"] = {}
+    d["shape"]["0"] = df.shape[0]
+    d["shape"]["1"] = df.shape[1]
+
+    acc_shape = accum.get("shape", None)
+    if acc_shape:
+        d["shape"]["0"] += acc_shape["0"]
 
     types_stats = []
     for dtype in ['float', 'int', 'object']:
         selected_dtype = df.select_dtypes(include=[dtype])
         mem_usage_bytes = selected_dtype.memory_usage(deep=True).mean()
-        mem_usage_mb = round(mem_usage_bytes / 1024**2, 4)
+        acc_type_stat_d = get_dict_by_name(acc_type_stat, dtype)
+        mem_usage_mb = round(mem_usage_bytes / 1024**2, 4) + acc_type_stat_d.get("size, MB", 0)
         types_stats.append({
-                f"{dtype} use, MB" : mem_usage_mb
+                "column_name" : dtype,
+                "size, MB" : mem_usage_mb
         })
 
     d["types_stat"] = types_stats
@@ -164,7 +196,7 @@ def evaluate_memory(df, file, accum = None):
     return d
     
 
-def convert_object_datatypes(df):
+def convert_object_datatypes(df, accum = None):
 
     # INFO
     # category_example
@@ -191,12 +223,15 @@ def convert_object_datatypes(df):
         else:
             conv_df.loc[:, col] = df_obj[col]
 
-    print(mem_usage(df_obj))
-    print(mem_usage(conv_df))
+    # print(mem_usage(df_obj))
+    # print(mem_usage(conv_df))
+
+    if not accum:
+        accum = {}
 
     d = {}
-    d['objects_size'] = round(mem_usage(df_obj), 2)
-    d['objects_astype'] = round(mem_usage(conv_df), 2)
+    d['objects_size'] = round(mem_usage(df_obj), 2) + accum.get("objects_size", 0)
+    d['objects_astype'] = round(mem_usage(conv_df), 2) + accum.get("objects_astype", 0)
 
     return conv_df, d
 
@@ -214,28 +249,30 @@ def type_size():
 ‘float’: smallest float dtype (min.: np.float32)
 """       
 
-def int_downcast(df):
-
+def int_downcast(df, accum = None):
 
     df_int = df.select_dtypes(include=['int'])
     df_int_downcast = df_int.apply(pd.to_numeric, downcast='unsigned')
-    print(mem_usage(df_int))
-    print(mem_usage(df_int_downcast)) 
+    # print(mem_usage(df_int))
+    # print(mem_usage(df_int_downcast)) 
 
     compare_ints = pd.concat([df_int.dtypes, df_int_downcast.dtypes], axis = 1)
     compare_ints.columns = ['before', 'after']
     compare_ints.apply(pd.Series.value_counts)
-    print(compare_ints)
+    # print(compare_ints)
+
+    if not accum:
+        accum = {}
 
     d = {}
-    d['df_int_size'] = round(mem_usage(df_int), 2)
-    d['df_int_downcast_size'] = round(mem_usage(df_int_downcast), 2)
+    d['df_int_size'] = round(mem_usage(df_int), 2) + accum.get('df_int_size', 0)
+    d['df_int_downcast_size'] = round(mem_usage(df_int_downcast), 2) + accum.get('df_int_downcast_size', 0)
     d['type_conversion'] = compare_ints.to_dict()
 
     return df_int_downcast, d
 
 
-def float_downcast(df):
+def float_downcast(df, accum = None):
     df_float = df.select_dtypes(include=['float'])
     df_float_downcast = df_float.apply(pd.to_numeric, downcast='float')
     print(mem_usage(df_float))
@@ -245,9 +282,12 @@ def float_downcast(df):
     compare_floats.apply(pd.Series.value_counts)
     print(compare_floats)
 
+    if not accum:
+        accum = {}
+
     d = {}
-    d['df_float_size'] = round(mem_usage(df_float), 2)
-    d['df_float_downcast_size'] = round(mem_usage(df_float_downcast), 2)
+    d['df_float_size'] = round(mem_usage(df_float), 2) + accum.get('df_float_size',0)
+    d['df_float_downcast_size'] = round(mem_usage(df_float_downcast), 2) + accum.get('df_float_downcast_size', 0)
     d['type_conversion'] = compare_floats.to_dict()
 
     return df_float_downcast, d

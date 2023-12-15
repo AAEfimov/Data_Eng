@@ -1,0 +1,1 @@
+{"YEAR": "uint16", "MONTH": "uint8", "DAY": "uint8", "ORIGIN_AIRPORT": "category", "DESTINATION_AIRPORT": "category", "AIR_TIME": "float32", "DISTANCE": "uint16", "WHEELS_ON": "float32", "AIRLINE_DELAY": "float32", "WEATHER_DELAY": "float32"}

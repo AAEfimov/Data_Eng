@@ -283,9 +283,30 @@ def chunks_read(filename, cols, types_list, datafiles_out, outfilename, ch_size=
     if os.path.isfile(outf):
         os.remove(outf)
 
-    for chunk in pd.read_csv(filename, usecols = lambda x : x in cols, dtype=types_list, chunksize=ch_size, parse_dates=['date'], infer_datetime_format=True):
+    # write header once 
+    has_header = True
+    # parse_dates=['date'], infer_datetime_format=True
+    for chunk in pd.read_csv(filename, usecols = lambda x : x in cols, dtype=types_list, chunksize=ch_size):
         print(f"cunk_mem {mem_usage(chunk)}")
-        # Добавляя через mode='a' мы каждый чанк записываем строку, которая описывает колонки
-        # cols в данном случае
+        # Добавляя через mode='a' мы каждый чанк записываем строку, которая описывает колонки (header)
+        # cols в данном случае 
+        # use header variable
 
-        chunk.to_csv(outf, mode="a")
+        chunk.to_csv(outf, mode="a", header=has_header)
+        has_header = False
+
+
+def read_pandas_types(filename):
+    with open(filename, mode="r") as f:
+        types = json.load(f)
+
+        for key in types.keys():
+            if types[key] == 'category':
+                # Сработало только как вызов метода
+                # Result
+                # CategoricalDtype(categories=None, ordered=False)
+                types[key] = pd.CategoricalDtype()
+            else:
+                types[key] = np.dtype(types[key])
+
+        return types

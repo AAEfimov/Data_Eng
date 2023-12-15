@@ -1,0 +1,1 @@
+{"date": "uint32", "h_game_number": "uint8", "v_score": "uint8", "h_score": "uint8", "v_at_bats": "float32", "v_hits": "float32", "h_homeruns": "float32", "h_passed_balls": "float32", "saving_pitcher_id": "category", "h_manager_name": "category"}

@@ -6,4 +6,7 @@
 :x: [Задание 3](P3.py)  
 :x: [Задание 4](P4.py)  
 :x: [Задание 5](P5.py)  
-:x: [Задание 6](P6.py)  
+:x: [Задание 6](P6.py)
+
+## [P6 DATASET](https://catalog.data.gov/dataset/crime-data-from-2010-to-2019)
+

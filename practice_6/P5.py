@@ -22,31 +22,42 @@ chunk_filename = "asteroid_df_chunk.csv"
 selected_columns = ['spkid', 'full_name', 'diameter', 'albedo', 'epoch', 'equinox', 
            'tp', 'per', 'moid', 'class', 'rms']
 
-def get_stat_and_optimize(datafile, compr='infer', nr=None):
-    df = pd.read_csv(datafile, compression=compr, nrows=nr)
+def get_stat_and_optimize(datafile, chzs=None, compr='infer', nr=None):
 
-    md = evaluate_memory(df, datafile)
-    write_data_to_json(md, outfile.format(f"memusage_noopt"))
-    
-    df_optimized = df.copy()
+    md = {}
+    md_opt = {}
+    conv_d_obj = {}
+    conv_d_int = {}
+    conv_d_float = {}
+    #for df_chunk in pd.read_csv(datafile, compression=compr, chunksize = chzs, nrows=nr):
+    try:
+        df_chunk = pd.read_csv(datafile, compression=compr, chunksize = chzs, nrows=nr)
 
-    df_obj, conv_d_obj = convert_object_datatypes(df)
+        md = evaluate_memory(df_chunk, datafile, md)
+ 
+        df_optimized = df_chunk.copy()
+
+        df_obj, conv_d_obj = convert_object_datatypes(df_chunk, conv_d_obj)
+        df_int, conv_d_int = int_downcast(df_chunk, conv_d_int)
+        df_float, conv_d_float = float_downcast(df_chunk, conv_d_float)
+        
+        df_optimized[df_int.columns] = df_int
+        df_optimized[df_float.columns] = df_float
+        df_optimized[df_obj.columns] = df_obj
+
+        print(mem_usage(df_chunk))
+        print(mem_usage(df_optimized))
+
+        md_opt = evaluate_memory(df_optimized, datafile, md_opt)
+
+    except:
+        print("Exception!")
+
     write_data_to_json(conv_d_obj, outfile.format("objects_memopt"))
-
-    df_int, conv_d_int = int_downcast(df)
     write_data_to_json(conv_d_int, outfile.format("int_downcast"))
-
-    df_float, conv_d_float = float_downcast(df)
     write_data_to_json(conv_d_float, outfile.format("float_downcast"))
 
-    df_optimized[df_int.columns] = df_int
-    df_optimized[df_float.columns] = df_float
-    df_optimized[df_obj.columns] = df_obj
-
-    print(mem_usage(df))
-    print(mem_usage(df_optimized))
-
-    md_opt = evaluate_memory(df_optimized, datafile)
+    write_data_to_json(md, outfile.format(f"memusage_noopt"))
     write_data_to_json(md_opt, outfile.format(f"memusage_optimized"))
 
     # select columns to load

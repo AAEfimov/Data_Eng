@@ -183,7 +183,10 @@ def evaluate_memory(df, file, accum = None):
     for dtype in ['float', 'int', 'object']:
         selected_dtype = df.select_dtypes(include=[dtype])
         mem_usage_bytes = selected_dtype.memory_usage(deep=True).mean()
+
         acc_type_stat_d = get_dict_by_name(acc_type_stat, dtype)
+        # print(f" CURRENT {dtype} SIZE MEAN: {round(mem_usage_bytes / 1024**2, 4)} CORRECT_SIZE {mem_usage(selected_dtype.memory_usage(deep=True))} ACCUM SZ {acc_type_stat_d.get('size, MB', 0)}")
+
         mem_usage_mb = round(mem_usage_bytes / 1024**2, 4) + acc_type_stat_d.get("size, MB", 0)
         types_stats.append({
                 "column_name" : dtype,
@@ -230,8 +233,12 @@ def convert_object_datatypes(df, accum = None):
         accum = {}
 
     d = {}
-    d['objects_size'] = round(mem_usage(df_obj), 2) + accum.get("objects_size", 0)
-    d['objects_astype'] = round(mem_usage(conv_df), 2) + accum.get("objects_astype", 0)
+    oacsz = accum.get("objects_size", 0)
+    oacast = accum.get("objects_astype", 0)
+    # print(f"OBJ current sz {round(mem_usage(df_obj), 2)} ast {round(mem_usage(conv_df), 2)} ACCUM_OBJ sz {oacsz} ast {oacast}")
+
+    d['objects_size'] = round(mem_usage(df_obj), 2) + oacsz
+    d['objects_astype'] = round(mem_usage(conv_df), 2) + oacast
 
     return conv_df, d
 
@@ -265,8 +272,14 @@ def int_downcast(df, accum = None):
         accum = {}
 
     d = {}
-    d['df_int_size'] = round(mem_usage(df_int), 2) + accum.get('df_int_size', 0)
-    d['df_int_downcast_size'] = round(mem_usage(df_int_downcast), 2) + accum.get('df_int_downcast_size', 0)
+
+    oacsz = accum.get('df_int_size', 0)
+    oacast = accum.get('df_int_downcast_size', 0)
+
+    # print(f"INT current sz {round(mem_usage(df_int), 2)} DCAST {mem_usage(df_int_downcast)} ACCUM_INT sz {oacsz} DCAST {oacast}")
+
+    d['df_int_size'] = round(mem_usage(df_int), 2) + oacsz
+    d['df_int_downcast_size'] = round(mem_usage(df_int_downcast), 2) + oacast
     d['type_conversion'] = compare_ints.to_dict()
 
     return df_int_downcast, d
@@ -275,19 +288,24 @@ def int_downcast(df, accum = None):
 def float_downcast(df, accum = None):
     df_float = df.select_dtypes(include=['float'])
     df_float_downcast = df_float.apply(pd.to_numeric, downcast='float')
-    print(mem_usage(df_float))
-    print(mem_usage(df_float_downcast))
+    # print(mem_usage(df_float))
+    # print(mem_usage(df_float_downcast))
     compare_floats = pd.concat([df_float.dtypes, df_float_downcast.dtypes], axis = 1)
     compare_floats.columns = ['before', 'after']
     compare_floats.apply(pd.Series.value_counts)
-    print(compare_floats)
+    # print(compare_floats)
 
     if not accum:
         accum = {}
 
     d = {}
-    d['df_float_size'] = round(mem_usage(df_float), 2) + accum.get('df_float_size',0)
-    d['df_float_downcast_size'] = round(mem_usage(df_float_downcast), 2) + accum.get('df_float_downcast_size', 0)
+
+    oacsz = accum.get('df_float_size',0)
+    oacast = accum.get('df_float_downcast_size', 0)
+    # print(f"FLOAT current sz {round(mem_usage(df_float), 2)} DCAST {round(mem_usage(df_float_downcast), 2)} ACCUMFLOAT sz {oacsz} DCAST {oacast}")
+
+    d['df_float_size'] = round(mem_usage(df_float), 2) + oacsz
+    d['df_float_downcast_size'] = round(mem_usage(df_float_downcast), 2) + oacast
     d['type_conversion'] = compare_floats.to_dict()
 
     return df_float_downcast, d

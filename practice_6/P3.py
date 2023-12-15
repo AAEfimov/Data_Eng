@@ -29,11 +29,10 @@ def get_stat_and_optimize(datafile, compr='infer', chzs=None, nr=None):
     conv_d_obj = {}
     conv_d_int = {}
     conv_d_float = {}
-    #for df_chunk in pd.read_csv(datafile, compression=compr, chunksize = chzs, nrows=nr):
-    try:
-        df_chunk = pd.read_csv(datafile, compression=compr, chunksize = chzs, nrows=nr)
+
+    for df_chunk in pd.read_csv(datafile, compression=compr, chunksize = chzs, nrows=nr):
+        print("read chunk")
         md = evaluate_memory(df_chunk, datafile, md)
- 
         df_optimized = df_chunk.copy()
 
         df_obj, conv_d_obj = convert_object_datatypes(df_chunk, conv_d_obj)
@@ -44,12 +43,10 @@ def get_stat_and_optimize(datafile, compr='infer', chzs=None, nr=None):
         df_optimized[df_float.columns] = df_float
         df_optimized[df_obj.columns] = df_obj
 
-        # print(mem_usage(df_chunk))
-        # print(mem_usage(df_optimized))
+        print(mem_usage(df_chunk))
+        print(mem_usage(df_optimized))
 
         md_opt = evaluate_memory(df_optimized, datafile, md_opt)
-    except:
-        print("EXCEPTRION")
 
     write_data_to_json(conv_d_obj, outfile.format("objects_memopt"))
     write_data_to_json(conv_d_int, outfile.format("int_downcast"))
@@ -81,7 +78,7 @@ def get_stat_and_optimize(datafile, compr='infer', chzs=None, nr=None):
 
 if __name__ == "__main__":
     ## Evaluate and optimization
-    get_stat_and_optimize(datafile)
+    get_stat_and_optimize(datafile, chzs=200_000)
 
     ## PLOTTING
 

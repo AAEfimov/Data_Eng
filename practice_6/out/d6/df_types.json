@@ -1,1 +1,1 @@
-{"DR_NO": "uint32", "DATE OCC": "category", "AREA ": "uint8", "AREA NAME": "category", "Vict Age": "int64", "Vict Sex": "category", "Vict Descent": "category", "Weapon Used Cd": "float32", "Weapon Desc": "category", "LOCATION": "category"}
+{"DR_NO": "uint32", "DATE OCC": "category", "TIME OCC": "uint16", "AREA ": "uint8", "AREA NAME": "category", "Rpt Dist No": "uint16", "Vict Age": "int64", "Vict Sex": "category", "Vict Descent": "category", "Weapon Used Cd": "float32", "Weapon Desc": "category"}

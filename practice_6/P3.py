@@ -29,6 +29,8 @@ def get_stat_and_optimize(datafile, compr='infer', chzs=None, nr=None):
     conv_d_obj = {}
     conv_d_int = {}
     conv_d_float = {}
+    total_mem_usage = 0
+    total_optimal_memusage = 0
 
     for df_chunk in pd.read_csv(datafile, compression=compr, chunksize = chzs, nrows=nr):
         print("read chunk")
@@ -43,10 +45,12 @@ def get_stat_and_optimize(datafile, compr='infer', chzs=None, nr=None):
         df_optimized[df_float.columns] = df_float
         df_optimized[df_obj.columns] = df_obj
 
-        print(mem_usage(df_chunk))
-        print(mem_usage(df_optimized))
+        total_mem_usage += mem_usage(df_chunk)
+        total_optimal_memusage += mem_usage(df_optimized)
 
         md_opt = evaluate_memory(df_optimized, datafile, md_opt)
+
+    print(f"MEM USAGE {total_mem_usage} OPT {total_optimal_memusage}")
 
     write_data_to_json(conv_d_obj, outfile.format("objects_memopt"))
     write_data_to_json(conv_d_int, outfile.format("int_downcast"))

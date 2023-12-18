@@ -20,12 +20,14 @@ types_file = outfile.format("df_types")
 opt_datafile_name = datafiles_out.format("Crime_dataset_optcols.csv")
 chunk_filename = "Crime_dataset_df_chunk.csv"
 
-selected_columns = ['DR_NO', 'DATE OCC', 'AREA ', 'AREA NAME', 'Vict Age', 'Vict Sex', 
-           'Vict Descent', 'Weapon Used Cd', 'Weapon Desc', 'LOCATION']
+selected_columns = ['DR_NO', 'DATE OCC', 'TIME OCC', 'AREA ', 'AREA NAME', 'Rpt Dist No', 'Vict Age', 'Vict Sex', 
+           'Vict Descent', 'Weapon Used Cd', 'Weapon Desc']
 
 def get_stat_and_optimize(datafile):
 
     df = pd.read_csv(datafile)
+
+    print(df.info())
 
     md = evaluate_memory(df, datafile)
     

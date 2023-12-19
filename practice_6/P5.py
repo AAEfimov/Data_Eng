@@ -84,16 +84,39 @@ def get_stat_and_optimize(datafile, chzs=None, compr='infer', nr=None):
 
 if __name__ == "__main__":
     ## Evaluate and optimization
-    get_stat_and_optimize(datafile)
+    # get_stat_and_optimize(datafile)
 
     ## PLOTTING
 
     # Read types
-    # need_dtypes = read_pandas_types(types_file)
+    need_dtypes = read_pandas_types(types_file)
 
-    # print(need_dtypes)
+    print(need_dtypes)
     # # , parse_dates=['date'], infer_datetime_format=True
 
-    # df_plot = pd.read_csv(opt_datafile_name, usecols = lambda x : x in need_dtypes.keys(), dtype = need_dtypes)
+    df_plot = pd.read_csv(opt_datafile_name, usecols = lambda x : x in need_dtypes.keys(), dtype = need_dtypes)
+    df_plot.info(memory_usage='deep')
 
-    # df_plot.info(memory_usage='deep')
+    # 1) pairplot 
+    # sns.pairplot(df_plot.select_dtypes(include=['float32'])).savefig(outfig.format("pairplot"))
+
+    # 2) diam_by_class
+
+    #df_g = df_plot.groupby(['class'])[['diameter']].agg( {'diameter' : ['min', 'max', 'mean']} )
+ 
+    #plot =  df_g.plot(title="class by diametr")
+    #plot.get_figure().savefig(outfig.format("diam_by_class"))
+
+    # 3) 
+
+    # plot2 = df_plot['epoch'].plot(title="epoch")
+    # plot2.get_figure().savefig(outfig.format("Total"))
+
+    # 4)  
+
+    # pf_g = df_plot.groupby(['equinox', 'spkid'])[['albedo']].agg( {'albedo' : ['max', 'mean'],} )
+    # plot3 = pf_g.plot(title="Discribe", rot=90, figsize=(30,15))
+    # plot3.get_figure().savefig(outfig.format("Discribe_albedo"))
+
+
+    

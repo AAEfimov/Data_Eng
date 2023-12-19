@@ -108,3 +108,4 @@ if __name__ == "__main__":
 
     plot2 = df_plot['DESTINATION_AIRPORT'].value_counts().plot(kind='pie', title='Destination airport')
     plot2.get_figure().savefig(outfig.format("pie_destination"))
+

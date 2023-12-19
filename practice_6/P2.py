@@ -14,6 +14,7 @@ datafile = "data/flights.csv"
 datafiles_out = "data/{}"
 
 outfile = "out/" + out_dir + "/{}.json"
+outfig = "out/" + out_dir + "/{}.png"
 
 types_file = outfile.format("df_types")
 opt_datafile_name = datafiles_out.format("flights_optcols.csv")
@@ -86,3 +87,24 @@ if __name__ == "__main__":
     df_plot = pd.read_csv(opt_datafile_name, usecols = lambda x : x in need_dtypes.keys(), dtype = need_dtypes)
 
     df_plot.info(memory_usage='deep')
+
+    # 1) pairplot
+    # sns.pairplot(df_plot).savefig(outfig.format("pairplot"))
+
+    # 2) DELAY BY MONTH
+
+    # df_del = df_plot.groupby(['MONTH'])[['AIRLINE_DELAY', 'WEATHER_DELAY']].agg({ 'AIRLINE_DELAY' : ['min', 'mean', 'max'],
+    #                                                                                'WEATHER_DELAY' : ['min', 'mean', 'max']})
+    # plot =  df_del.plot(title="delay per month")
+    # plot.get_figure().savefig(outfig.format("delay"))
+
+    # 3) Air time by distance
+    # fig, ax = plt.subplots()
+
+    # sns.boxplot(data=df_plot, x='DISTANCE', y='AIR_TIME')
+    # plt.savefig(outfig.format("airtime_by_dist"))
+
+    # 4) pie destiantion
+
+    plot2 = df_plot['DESTINATION_AIRPORT'].value_counts().plot(kind='pie', title='Destination airport')
+    plot2.get_figure().savefig(outfig.format("pie_destination"))

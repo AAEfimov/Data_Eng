@@ -14,6 +14,7 @@ datafile = "data/vacancies.csv.gz"
 datafiles_out = "data/{}"
 
 outfile = "out/" + out_dir + "/{}.json"
+outfig = "out/" + out_dir + "/{}.png"
 
 types_file = outfile.format("df_types")
 opt_datafile_name = datafiles_out.format("vacancies_optcols.csv")
@@ -82,16 +83,35 @@ def get_stat_and_optimize(datafile, compr='infer', chzs=None, nr=None):
 
 if __name__ == "__main__":
     ## Evaluate and optimization
-    get_stat_and_optimize(datafile, chzs=200_000)
+
+    # get_stat_and_optimize(datafile, chzs=200_000)
 
     ## PLOTTING
 
     # Read types
-    # need_dtypes = read_pandas_types(types_file)
+    need_dtypes = read_pandas_types(types_file)
 
-    # print(need_dtypes)
-    # # , parse_dates=['date'], infer_datetime_format=True
+    print(need_dtypes)
+    # , parse_dates=['date'], infer_datetime_format=True
 
-    # df_plot = pd.read_csv(opt_datafile_name, usecols = lambda x : x in need_dtypes.keys(), dtype = need_dtypes)
+    df_plot = pd.read_csv(opt_datafile_name, usecols = lambda x : x in need_dtypes.keys(), dtype = need_dtypes)
 
-    # df_plot.info(memory_usage='deep')
+    df_plot.info(memory_usage='deep')
+
+    # 1) pairplot
+
+    # sns.pairplot(df_plot).savefig(outfig.format("pairplot"))
+
+    # 2) premium sale
+
+    df_m = df_plot.groupby(['premium'])[['salary_from', 'salary_to']].agg( {'salary_from' : ['min', 'mean', 'max'],
+                                                                             'salary_to' : ['min', 'mean', 'max']})
+
+    plot2 = df_m.plot(kind = 'hist', title="premium sale", rot=90, figsize=(30,15))
+    plot2.get_figure().savefig(outfig.format("premium"))
+
+    # 3)   empoyr_salary  
+    
+    fig, ax = plt.subplots()
+    sns.jointplot(x="employer_id", y="salary_from", data=df_plot, hue="premium") #scatter
+    plt.savefig(outfig.format("empoyr_salary"))

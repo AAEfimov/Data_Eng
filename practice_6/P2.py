@@ -72,7 +72,8 @@ def get_stat_and_optimize(datafile):
 
 if __name__ == "__main__":
     ## Evaluate and optimization
-    get_stat_and_optimize(datafile)
+    
+    # get_stat_and_optimize(datafile)
 
     ## PLOTTING
 

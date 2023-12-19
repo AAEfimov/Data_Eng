@@ -16,6 +16,8 @@ datafiles_out = "data/{}"
 
 outfile = "out/" + out_dir + "/{}.json"
 
+outfig = "out/" + out_dir + "/{}.png"
+
 types_file = outfile.format("df_types")
 opt_datafile_name = datafiles_out.format("game_dataset_optcols.csv")
 chunk_filename = "game_dataset_df_chunk.csv"
@@ -72,8 +74,10 @@ def get_stat_and_optimize(datafile):
     chunks_read(datafile, selected_columns, nc, datafiles_out, chunk_filename)
 
 if __name__ == "__main__":
+
     ## Evaluate and optimization
-    get_stat_and_optimize(datafile)
+    
+    # get_stat_and_optimize(datafile)
 
     ## PLOTTING
 
@@ -86,6 +90,24 @@ if __name__ == "__main__":
     df_plot = pd.read_csv(opt_datafile_name, usecols = lambda x : x in need_dtypes.keys(), dtype = need_dtypes)
 
     df_plot.info(memory_usage='deep')
+
+    df_plot['date'] = pd.to_datetime(df_plot['date'], format="%Y%m%d")
+    # 1) plot homeruns
+
+    df_g = df_plot.groupby(['date'])['h_homeruns'].count()
+ 
+    plot =  df_g.plot(title="homeruns per year")
+    plot.get_figure().savefig(outfig.format("homeruns"))
+
+    # 2) plot score by manager
+    df_m = df_plot.groupby(['h_manager_name'])[['v_score', 'h_score']].agg( {'v_score' : ['min', 'mean', 'max'],
+                                                                             'h_score' : ['min', 'mean', 'max']})
+
+    plot2 = df_m.plot(title="score by manager", rot=90, figsize=(30,15))
+    plot2.get_figure().savefig(outfig.format("score"))
+
+    # 3) pairplot
+    sns.pairplot(df_plot).savefig(outfig.format("pairplot"))
 
 
 

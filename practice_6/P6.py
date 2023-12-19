@@ -15,6 +15,7 @@ datafile = "data/Crime_Data_from_2010_to_2019.csv"
 datafiles_out = "data/{}"
 
 outfile = "out/" + out_dir + "/{}.json"
+outfig = "out/" + out_dir + "/{}.png"
 
 types_file = outfile.format("df_types")
 opt_datafile_name = datafiles_out.format("Crime_dataset_optcols.csv")

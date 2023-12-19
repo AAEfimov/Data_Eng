@@ -14,6 +14,7 @@ datafile = "data/asteroid.zip"
 datafiles_out = "data/{}"
 
 outfile = "out/" + out_dir + "/{}.json"
+outfig = "out/" + out_dir + "/{}.png"
 
 types_file = outfile.format("df_types")
 opt_datafile_name = datafiles_out.format("asteroid_optcols.csv")

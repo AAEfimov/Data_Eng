@@ -14,13 +14,14 @@ datafile = "data/automotive.csv.zip"
 datafiles_out = "data/{}"
 
 outfile = "out/" + out_dir + "/{}.json"
+outfig = "out/" + out_dir + "/{}.png"
 
 types_file = outfile.format("df_types")
 opt_datafile_name = datafiles_out.format("automotive_optcols.csv")
 chunk_filename = "automotive_df_chunk.csv"
 
-selected_columns = ['vin', 'stockNum', 'brandName', 'modelName', 'vf_AdaptiveDrivingBeam', 'vf_AirBagLocCurtain', 
-           'vf_BatteryKWh', 'vf_Doors', 'vf_ParkAssist', 'vf_Seats']
+selected_columns = ['firstSeen', 'brandName', 'modelName', 'msrp', 'askPrice', 
+           'isNew', 'color', 'vf_VehicleType', 'vf_Seats']
 
 # DtypeWarning: Columns (17,53,65,67,69,91,93,107,111,120,122) have mixed types. Specify dtype option on import or set low_memory=False.
 
@@ -85,17 +86,39 @@ def get_stat_and_optimize(datafile, chzs = None, compr='infer', nr=None):
     chunks_read(datafile, selected_columns, nc, datafiles_out, chunk_filename)
 
 if __name__ == "__main__":
+
     ## Evaluate and optimization
-    get_stat_and_optimize(datafile, chzs=100_000)
+    # get_stat_and_optimize(datafile, chzs=100_000)
 
     ## PLOTTING
 
     # Read types
-    # need_dtypes = read_pandas_types(types_file)
+    need_dtypes = read_pandas_types(types_file)
+    print(need_dtypes)
 
-    # print(need_dtypes)
     # # , parse_dates=['date'], infer_datetime_format=True
 
-    # df_plot = pd.read_csv(opt_datafile_name, usecols = lambda x : x in need_dtypes.keys(), dtype = need_dtypes)
+    df_plot = pd.read_csv(opt_datafile_name, usecols = lambda x : x in need_dtypes.keys(), dtype = need_dtypes)
+    df_plot.info(memory_usage='deep')
 
-    # df_plot.info(memory_usage='deep')
+    # 1) pairplot
+    # sns.pairplot(df_plot).savefig(outfig.format("pairplot"))
+
+    # 2) brands
+
+    df_n = df_plot.groupby(['brandName', 'modelName']).count()
+
+    plot2 = df_n.plot(title="brands car", rot=90, figsize=(30,15))
+    plot2.get_figure().savefig(outfig.format("brands"))
+
+    # 3) pie_brandName
+
+    plot2 = df_plot['brandName'].value_counts().plot(kind='pie', title='Brands')
+    plot2.get_figure().savefig(outfig.format("pie_brandName"))
+
+    # 4) askPrice by color
+    fig, ax = plt.subplots()
+
+    plot_price = df_plot.groupby('color')[['askPrice']].agg( {'askPrice' : ['min', 'max', 'mean']} )
+    sns.barplot(data=df_plot, x="color", y="askPrice")
+    plt.savefig(outfig.format("askPrice"))

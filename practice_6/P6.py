@@ -77,7 +77,7 @@ def get_stat_and_optimize(datafile):
 
 if __name__ == "__main__":
     ## Evaluate and optimization
-    get_stat_and_optimize(datafile)
+    # get_stat_and_optimize(datafile)
 
     ## PLOTTING
 
@@ -87,12 +87,37 @@ if __name__ == "__main__":
     print(need_dtypes)
     # , parse_dates=['date'], infer_datetime_format=True
 
-    df_plot = pd.read_csv(opt_datafile_name, usecols = lambda x : x in need_dtypes.keys(), dtype = need_dtypes)
+    df_plot = pd.read_csv(opt_datafile_name, usecols = lambda x : x in need_dtypes.keys(), dtype = need_dtypes, parse_dates=['DATE OCC'])
 
     df_plot.info(memory_usage='deep')
 
+    
+    # 1) pairplot
+    # sns.pairplot(df_plot).savefig(outfig.format("pairplot"))
 
+    # 2)
 
+    # plt.figure(figsize=(30,5))
+    # gr_obj = df_plot.groupby(["DATE OCC", "Vict Sex"], as_index=False)['Vict Age'].mean()
+    # sns.set_style("ticks",{'axes.grid' : True})
+    # sns.lineplot(data=gr_obj, x="DATE OCC", y='Vict Age', hue="Vict Sex").set(title='Avg Age')
+    # plt.savefig(outfig.format("avg_age"))
+
+    # 3)
+
+    # df_gr_date = df_plot.groupby(["AREA "])['Weapon Used Cd'].count()
+
+    # plot1 = df_gr_date.plot(kind='bar', title='Weapon Used Cd')
+    # plot1.get_figure().savefig(outfig.format("pie_Weapon_Used"))
+
+    # 4)
+
+    # df_time_gr = df_plot.groupby(['TIME OCC'])['Vict Sex'].count()
+
+    # plot2 = df_time_gr.plot(title='Vict Sex')
+    # plot2.get_figure().savefig(outfig.format("time"))
+
+    
     
 
 

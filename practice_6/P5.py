@@ -109,14 +109,26 @@ if __name__ == "__main__":
 
     # 3) 
 
-    # plot2 = df_plot['epoch'].plot(title="epoch")
-    # plot2.get_figure().savefig(outfig.format("Total"))
+    # fig, ax = plt.subplots()
+
+    # sns.scatterplot(data=df_plot, x='epoch', y='class')
+
+    # plt.savefig(outfig.format("Total"))
 
     # 4)  
 
-    # pf_g = df_plot.groupby(['equinox', 'spkid'])[['albedo']].agg( {'albedo' : ['max', 'mean'],} )
-    # plot3 = pf_g.plot(title="Discribe", rot=90, figsize=(30,15))
-    # plot3.get_figure().savefig(outfig.format("Discribe_albedo"))
+    # pf_g = df_plot.groupby(['diameter'])[['albedo']].agg( {'albedo' : ['max', 'mean'],} )
 
 
+    # fig, ax = plt.subplots()
+    # sns.boxplot(data=pf_g.head(5000), x='diameter')
+    # plt.savefig(outfig.format("Discribe_albedo"))
+
+    # 5)
+
+    fig, ax = plt.subplots()
+
+    sns.scatterplot(data=df_plot, x='diameter', y='moid')
+
+    plt.savefig(outfig.format("dm"))
     

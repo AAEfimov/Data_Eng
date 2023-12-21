@@ -124,11 +124,20 @@ if __name__ == "__main__":
 
     # 5)
 
-    df_sched = df_plot.groupby(['schedule_id', 'premium'])[['salary_from']].agg({'salary_from' : ['mean'],
-                                                                                })
+    # df_sched = df_plot.groupby(['schedule_id', 'premium'])[['salary_from']].agg({'salary_from' : ['mean'],
+    #                                                                             })
     
     
-    print(df_sched.head(10))
+    # print(df_sched.head(10))
 
-    plot2 = df_sched.plot(kind='barh', title="salary_by_sched", figsize=(30,15))
-    plot2.get_figure().savefig(outfig.format("salary_by_sched"))
+    # plot2 = df_sched.plot(kind='barh', title="salary_by_sched", figsize=(30,15))
+    # plot2.get_figure().savefig(outfig.format("salary_by_sched"))
+
+
+    # 6)
+    
+    fig, ax = plt.subplots()
+
+    plt.figure(figsize=(20,10))
+    sns.histplot(data=df_plot, x="schedule_id", hue="premium", bins=100, alpha=0.1)
+    plt.savefig(outfig.format("histplot"))

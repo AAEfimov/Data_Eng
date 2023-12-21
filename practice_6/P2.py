@@ -93,19 +93,40 @@ if __name__ == "__main__":
 
     # 2) DELAY BY MONTH
 
-    # df_del = df_plot.groupby(['MONTH'])[['AIRLINE_DELAY', 'WEATHER_DELAY']].agg({ 'AIRLINE_DELAY' : ['min', 'mean', 'max'],
-    #                                                                                'WEATHER_DELAY' : ['min', 'mean', 'max']})
+    # plt.figure(figsize=(16,6))
+    # df_del = df_plot.groupby(['MONTH'])[['AIRLINE_DELAY', 'WEATHER_DELAY']].agg({ 'AIRLINE_DELAY' : ['max'],
+    #                                                                                'WEATHER_DELAY' : ['max']})
     # plot =  df_del.plot(title="delay per month")
     # plot.get_figure().savefig(outfig.format("delay"))
 
     # 3) Air time by distance
+
     # fig, ax = plt.subplots()
 
-    # sns.boxplot(data=df_plot, x='DISTANCE', y='AIR_TIME')
+    # plt.figure(figsize=(30,5))
+    # #gr_obj = olympic.groupby(["Year", "Sex"], as_index=False)['Age'].mean()
+    # sns.set_style("ticks",{'axes.grid' : True})
+    # sns.lineplot(data=df_plot, x="DISTANCE", y="AIR_TIME").set(title='Distance and air time')
     # plt.savefig(outfig.format("airtime_by_dist"))
 
     # 4) pie destiantion
 
-    plot2 = df_plot['DESTINATION_AIRPORT'].value_counts().plot(kind='pie', title='Destination airport')
-    plot2.get_figure().savefig(outfig.format("pie_destination"))
+    # plot2 = df_plot['DESTINATION_AIRPORT'].head(20).value_counts().plot(kind='pie', title='Destination airport', autopct='%1.0f%%')
+    # plot2.get_figure().savefig(outfig.format("pie_destination"))
 
+    # 5) 
+
+    fig, ax = plt.subplots()
+
+    plt.figure(figsize=(20,10))
+    plt.title('Airtime per month')
+    # cmap="YlGnBu"
+    sns.heatmap(df_plot.pivot_table(values='AIR_TIME', index=['MONTH'], columns=['DAY'], aggfunc=np.mean), annot=True, fmt='.1f', annot_kws={"size":8}, cmap="Spectral", cbar=True);
+    plt.savefig(outfig.format("hitmap"))
+
+    # 6)
+
+    df_m = df_plot.groupby(['MONTH'])[['DISTANCE']].agg({'DISTANCE' : ['sum']})
+
+    plot2 = df_m.plot(kind='barh', title="Distance per month", figsize=(30,15))
+    plot2.get_figure().savefig(outfig.format("dpm"))

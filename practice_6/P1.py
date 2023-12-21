@@ -5,7 +5,9 @@ import pandas as pd
 import numpy as np 
 import seaborn as sns
 import matplotlib.pyplot as plt 
+import datetime
 from aux_func import *
+from graphs import *
 
 pd.set_option("display.max_rows", 20, "display.max_columns", 60)
 
@@ -92,25 +94,53 @@ if __name__ == "__main__":
     df_plot.info(memory_usage='deep')
 
     df_plot['date'] = pd.to_datetime(df_plot['date'], format="%Y%m%d")
+
     # 1) plot homeruns
 
-    df_g = df_plot.groupby(['date'])['h_homeruns'].count()
- 
-    plot =  df_g.plot(title="homeruns per year")
-    plot.get_figure().savefig(outfig.format("homeruns"))
+    # df_g = df_plot.groupby(pd.Grouper(key = 'date', freq='Y'))['h_homeruns'].count()
+    # plot =  df_g.plot(title="homeruns per year")
+    # plot.get_figure().savefig(outfig.format("homeruns"))
+
 
     # 2) plot score by manager
-    df_m = df_plot.groupby(['h_manager_name'])[['v_score', 'h_score']].agg( {'v_score' : ['min', 'mean', 'max'],
-                                                                             'h_score' : ['min', 'mean', 'max']})
+    # df_m = df_plot.groupby(['h_manager_name'])[['v_score']].agg( {'v_score' : ['max', 'mean', 'min']})
+    # df_m = df_m[df_m[('v_score', 'max')] > 25]
 
-    plot2 = df_m.plot(title="score by manager", rot=90, figsize=(30,15))
-    plot2.get_figure().savefig(outfig.format("score"))
+    # plot2 = df_m.plot(kind='barh', title="score by manager", figsize=(30,15))
+    # plot2.get_figure().savefig(outfig.format("score"))
+
 
     # 3) pairplot
-    sns.pairplot(df_plot).savefig(outfig.format("pairplot"))
+    # sns.pairplot(df_plot).savefig(outfig.format("pairplot"))
 
+    # 4) 
 
+    # df_games = df_plot.groupby(pd.Grouper(key = 'date', freq='Y'))[['v_hits']].count()
 
+    # plot =  df_games.plot(title="hits per 5 year", kind="box", vert=False)
+    # plot.get_figure().savefig(outfig.format("hits"))
+
+    # 5) 
+
+    # fig, ax = plt.subplots()
+    # sns.scatterplot(data=df_plot, x='h_passed_balls', y='h_score')
+    # plt.savefig(outfig.format("passed_score"))
+
+    # 6)
+
+    # date_from = pd.to_datetime("20000101", format = "%Y%m%d")
+    # date_to = pd.to_datetime("20160101", format = "%Y%m%d")
+
+    # df_hitmap = df_plot[(df_plot['date'] > date_from) & (df_plot['date'] < date_to)] 
+
+    # df_hitmap['year'] = df_hitmap['date'].dt.year
+    # df_hitmap['Month'] = df_hitmap['date'].dt.month
+
+    # fig, ax = plt.subplots()
+
+    # plt.figure(figsize=(16,6))
+    # sns.heatmap(df_hitmap.pivot_table(values='v_score', index=['year'], columns=['Month'], aggfunc=np.sum), annot=True, cmap="YlGnBu", cbar=True);
+    # plt.savefig(outfig.format("hitmap"))
     
 
 

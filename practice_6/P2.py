@@ -116,17 +116,17 @@ if __name__ == "__main__":
 
     # 5) 
 
-    fig, ax = plt.subplots()
+    # fig, ax = plt.subplots()
 
-    plt.figure(figsize=(20,10))
-    plt.title('Airtime per month')
-    # cmap="YlGnBu"
-    sns.heatmap(df_plot.pivot_table(values='AIR_TIME', index=['MONTH'], columns=['DAY'], aggfunc=np.mean), annot=True, fmt='.1f', annot_kws={"size":8}, cmap="Spectral", cbar=True);
-    plt.savefig(outfig.format("hitmap"))
+    # plt.figure(figsize=(20,10))
+    # plt.title('Airtime per month')
+    # # cmap="YlGnBu"
+    # sns.heatmap(df_plot.pivot_table(values='AIR_TIME', index=['MONTH'], columns=['DAY'], aggfunc=np.mean), annot=True, fmt='.1f', annot_kws={"size":8}, cmap="Spectral", cbar=True);
+    # plt.savefig(outfig.format("hitmap"))
 
     # 6)
 
-    df_m = df_plot.groupby(['MONTH'])[['DISTANCE']].agg({'DISTANCE' : ['sum']})
+    # df_m = df_plot.groupby(['MONTH'])[['DISTANCE']].agg({'DISTANCE' : ['sum']})
 
-    plot2 = df_m.plot(kind='barh', title="Distance per month", figsize=(30,15))
-    plot2.get_figure().savefig(outfig.format("dpm"))
+    # plot2 = df_m.plot(kind='barh', title="Distance per month", figsize=(30,15))
+    # plot2.get_figure().savefig(outfig.format("dpm"))

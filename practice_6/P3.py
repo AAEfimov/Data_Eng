@@ -104,14 +104,31 @@ if __name__ == "__main__":
 
     # 2) premium sale
 
-    df_m = df_plot.groupby(['premium'])[['salary_from', 'salary_to']].agg( {'salary_from' : ['min', 'mean', 'max'],
-                                                                             'salary_to' : ['min', 'mean', 'max']})
+    # df_m = df_plot.groupby(['premium'])[['salary_from', 'salary_to']].agg( {'salary_from' : ['min', 'mean', 'max'],
+    #                                                                           'salary_to' : ['min', 'mean', 'max']})
 
-    plot2 = df_m.plot(kind = 'hist', title="premium sale", rot=90, figsize=(30,15))
-    plot2.get_figure().savefig(outfig.format("premium"))
+    # plot2 = df_m.plot(kind='barh', title="premium sale", rot=90, figsize=(30,15))
+    # plot2.get_figure().savefig(outfig.format("premium"))
+
 
     # 3)   empoyr_salary  
     
-    fig, ax = plt.subplots()
-    sns.jointplot(x="employer_id", y="salary_from", data=df_plot, hue="premium") #scatter
-    plt.savefig(outfig.format("empoyr_salary"))
+    # fig, ax = plt.subplots()
+    # sns.jointplot(x="employer_id", y="salary_from", data=df_plot, hue="premium") #scatter
+    # plt.savefig(outfig.format("empoyr_salary"))
+
+    # 4)
+
+    # plot2 = df_plot['schedule_id'].value_counts().plot(kind='pie', title='schedule', autopct='%1.0f%%')
+    # plot2.get_figure().savefig(outfig.format("pie_schedule"))
+
+    # 5)
+
+    df_sched = df_plot.groupby(['schedule_id', 'premium'])[['salary_from']].agg({'salary_from' : ['mean'],
+                                                                                })
+    
+    
+    print(df_sched.head(10))
+
+    plot2 = df_sched.plot(kind='barh', title="salary_by_sched", figsize=(30,15))
+    plot2.get_figure().savefig(outfig.format("salary_by_sched"))

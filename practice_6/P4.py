@@ -20,8 +20,8 @@ types_file = outfile.format("df_types")
 opt_datafile_name = datafiles_out.format("automotive_optcols.csv")
 chunk_filename = "automotive_df_chunk.csv"
 
-selected_columns = ['firstSeen', 'brandName', 'modelName', 'msrp', 'askPrice', 
-           'isNew', 'color', 'vf_VehicleType', 'vf_Seats']
+selected_columns = ['firstSeen', 'brandName', 'modelName', 'vf_TransmissionStyle', 'askPrice', 
+           'isNew', 'vf_Series', 'vf_WheelSizeRear', 'vf_Seats']
 
 # DtypeWarning: Columns (17,53,65,67,69,91,93,107,111,120,122) have mixed types. Specify dtype option on import or set low_memory=False.
 
@@ -40,7 +40,8 @@ def get_stat_and_optimize(datafile, chzs = None, compr='infer', nr=None):
     for df_chunk in pd.read_csv(datafile, compression=compr, chunksize = chzs, nrows=nr, low_memory=False):
         print("read chunk")
         md = evaluate_memory(df_chunk, datafile, md)
- 
+        df_chunk.info()
+
         df_optimized = df_chunk.copy()
 
         df_obj, conv_d_obj = convert_object_datatypes(df_chunk, conv_d_obj)
@@ -106,19 +107,21 @@ if __name__ == "__main__":
 
     # 2) brands
 
-    df_n = df_plot.groupby(['brandName', 'modelName']).count()
+    #df_n = df_plot.groupby(['brandName'])[['isNew']].count()
 
-    plot2 = df_n.plot(title="brands car", rot=90, figsize=(30,15))
-    plot2.get_figure().savefig(outfig.format("brands"))
+    #df_n = df_n[(df_n['isNew'] > 100000)]
+
+    # plot2 = df_n.plot(title="brands car", rot=90, figsize=(30,15), kind='bar')
+    # plot2.get_figure().savefig(outfig.format("brands"))
 
     # 3) pie_brandName
 
-    plot2 = df_plot['brandName'].value_counts().plot(kind='pie', title='Brands')
-    plot2.get_figure().savefig(outfig.format("pie_brandName"))
+    # plot2 = df_plot['brandName'].head(10).value_counts().plot(kind='pie', title='Brands', autopct='%1.0f%%')    
+    # plot2.get_figure().savefig(outfig.format("pie_brandName"))
 
     # 4) askPrice by color
     fig, ax = plt.subplots()
 
-    plot_price = df_plot.groupby('color')[['askPrice']].agg( {'askPrice' : ['min', 'max', 'mean']} )
-    sns.barplot(data=df_plot, x="color", y="askPrice")
+    sns.scatterplot(data=df_plot, x='askPrice', y='vf_Seats', hue="isNew")
+
     plt.savefig(outfig.format("askPrice"))

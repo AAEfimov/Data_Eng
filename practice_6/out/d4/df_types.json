@@ -1,1 +1,1 @@
-{"firstSeen": "category", "brandName": "category", "modelName": "category", "msrp": "uint32", "askPrice": "uint32", "isNew": "bool", "color": "category", "vf_VehicleType": "category", "vf_Seats": "float32"}
+{"firstSeen": "category", "brandName": "category", "modelName": "category", "vf_TransmissionStyle": "category", "askPrice": "uint32", "isNew": "bool", "vf_Series": "category", "vf_WheelSizeRear": "float32", "vf_Seats": "float32"}

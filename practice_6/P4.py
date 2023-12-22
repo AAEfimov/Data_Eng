@@ -146,11 +146,11 @@ if __name__ == "__main__":
 
 
     # 6)
-
     df_plot['firstSeen'] = pd.to_datetime(df_plot['firstSeen'], format="%Y-%m-%d")
     df_plot['year'] = df_plot['firstSeen'].dt.year
     df_plot['Month'] = df_plot['firstSeen'].dt.month
     df_plot['Day'] = df_plot['firstSeen'].dt.day
+
 
 
     # fig, ax = plt.subplots()
@@ -169,3 +169,4 @@ if __name__ == "__main__":
     sns.set_style("ticks",{'axes.grid' : True})
     sns.lineplot(data=gr_obj, x="year", y="askPrice", hue="brandName").set(title='Avg pricy per year')
     plt.savefig(outfig.format("avg_price"))
+

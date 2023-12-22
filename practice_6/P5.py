@@ -126,9 +126,11 @@ if __name__ == "__main__":
 
     # 5)
 
-    fig, ax = plt.subplots()
+    # fig, ax = plt.subplots()
 
-    sns.scatterplot(data=df_plot, x='diameter', y='moid')
+    # sns.scatterplot(data=df_plot, x='diameter', y='moid')
 
-    plt.savefig(outfig.format("dm"))
+    # plt.savefig(outfig.format("dm"))
+    
+
     

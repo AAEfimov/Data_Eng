@@ -119,9 +119,53 @@ if __name__ == "__main__":
     # plot2 = df_plot['brandName'].head(10).value_counts().plot(kind='pie', title='Brands', autopct='%1.0f%%')    
     # plot2.get_figure().savefig(outfig.format("pie_brandName"))
 
-    # 4) askPrice by color
-    fig, ax = plt.subplots()
+    # 4) 
 
-    sns.scatterplot(data=df_plot, x='askPrice', y='vf_Seats', hue="isNew")
+    # df_trans = df_plot.groupby(['vf_TransmissionStyle'])[['vf_WheelSizeRear']].agg({'vf_WheelSizeRear' : ['max', 'mean', 'min']})
 
-    plt.savefig(outfig.format("askPrice"))
+    # plt.figure(figsize=(30,5))
+    # plt.title('WheelSize per Transmission')
+    # plt.plot(df_trans)
+    # plt.savefig(outfig.format("askPrice"))
+
+    # 5) 
+
+    # new_ch = df_plot[(df_plot['brandName'] == 'NISSAN')].reset_index()
+
+    # new_ch.loc[:, 'modelName'] = new_ch['modelName'].astype('str') 
+    # new_ch.loc[:, 'modelName'] = new_ch['modelName'].astype('category') 
+
+    # new_ch = new_ch[new_ch['askPrice'] < 3000000]
+
+    # df_group = new_ch.groupby(['modelName', 'isNew'], as_index=False)['askPrice'].mean()
+
+    # fig, ax = plt.subplots()
+    # plt.title("NISSAN model prices")
+    # sns.barplot(data=df_group, x="askPrice", y="modelName", hue="isNew") 
+    # plt.savefig(outfig.format("model_price"))
+
+
+    # 6)
+
+    df_plot['firstSeen'] = pd.to_datetime(df_plot['firstSeen'], format="%Y-%m-%d")
+    df_plot['year'] = df_plot['firstSeen'].dt.year
+    df_plot['Month'] = df_plot['firstSeen'].dt.month
+    df_plot['Day'] = df_plot['firstSeen'].dt.day
+
+
+    # fig, ax = plt.subplots()
+
+    # plt.figure(figsize=(16,6))
+    # plt.title("Day/Month new counts")
+    # sns.heatmap(df_plot.pivot_table(values='isNew', index=['Month'], columns=['Day'], aggfunc=np.sum), annot=False, cmap="YlGnBu", cbar=True);
+    # plt.savefig(outfig.format("hitmap3"))
+
+    # 7)
+
+    plt.figure(figsize=(30,30))
+    gr_obj = df_plot.groupby(["year", "brandName"], as_index=False)['askPrice'].mean()
+    gr_obj = gr_obj[gr_obj['askPrice'] < 1000000]
+
+    sns.set_style("ticks",{'axes.grid' : True})
+    sns.lineplot(data=gr_obj, x="year", y="askPrice", hue="brandName").set(title='Avg pricy per year')
+    plt.savefig(outfig.format("avg_price"))

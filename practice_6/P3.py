@@ -136,8 +136,21 @@ if __name__ == "__main__":
 
     # 6)
     
-    fig, ax = plt.subplots()
+    # df_s = df_plot.groupby(['schedule_id', 'premium'])[['salary_to']].agg({'salary_to' : ['mean']})
 
+    # fig, ax = plt.subplots()
+
+    # plt.figure(figsize=(20,10))
+
+    # sns.barplot(data=df_s, x=('salary_to', 'mean'), y="schedule_id", hue="premium")
+    # plt.xticks(rotation=90)
+    # plt.savefig(outfig.format("histplot"))
+
+    # 7)
+
+    df_op = df_plot.groupby(['type_id', 'schedule_id'], as_index=False)['salary_from'].mean()
+
+    fig, ax = plt.subplots()
     plt.figure(figsize=(20,10))
-    sns.histplot(data=df_plot, x="schedule_id", hue="premium", bins=100, alpha=0.1)
-    plt.savefig(outfig.format("histplot"))
+    sns.scatterplot(data=df_op, x='type_id', y='salary_from', size="salary_from", sizes=(20, 2000), hue='schedule_id')
+    plt.savefig(outfig.format("scatterplot"))

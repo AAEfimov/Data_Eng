@@ -131,6 +131,15 @@ if __name__ == "__main__":
     # sns.scatterplot(data=df_plot, x='diameter', y='moid')
 
     # plt.savefig(outfig.format("dm"))
-    
+
+    # 6) Class count
+
+
+    # fig, ax = plt.subplots()
+    # plt.figure(figsize=(10,10))
+
+    # df_no_mba = df_plot[(df_plot['class'] != 'MBA') & (df_plot['class'] != 'AST') & (df_plot['class'] != 'CEN') & (df_plot['class'] != 'HYA')]
+
+    # df_no_mba['class'].value_counts().plot(kind='pie', autopct=lambda p: '{:.1f}%'.format(round(p)) if p > 0 else '').get_figure().savefig(outfig.format("pie_class_count"))
 
     

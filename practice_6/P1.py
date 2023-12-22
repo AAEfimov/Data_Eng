@@ -143,5 +143,7 @@ if __name__ == "__main__":
     # plt.savefig(outfig.format("hitmap"))
     
 
+    print(df_plot.head())
+
 
 
